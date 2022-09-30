@@ -1,107 +1,101 @@
 #include "daisy_seed.h"
-#include "daisysp.h"
-#include "dev/oled_ssd130x.h"
-#include <stdio.h>
-#include <string.h>
+
+#include "engine/Engine.h"
+#include "engine/VoiceManager.h"
+#include <math.h>
 
 using namespace daisy;
-using namespace daisy::seed;
 using namespace daisysp;
 
-/** Typedef the OledDisplay to make syntax cleaner below
- *  This is a 4Wire SPI Transport controlling an 128x64 sized SSDD1306
- *
- *  There are several other premade test
- */
-using SynthOledDisplay = OledDisplay<SSD130x4WireSpi128x64Driver>;
-
 DaisySeed hw;
-MidiUartHandler midi;
+MidiUsbHandler midi;
 CpuLoadMeter load_meter;
-SynthOledDisplay display;
 
-void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
-                   size_t size) {
-  load_meter.OnBlockStart();
-  for (size_t i = 0; i < size; i++) {
-    out[0][i] = in[0][i];
-    out[1][i] = in[1][i];
+/**
+ * WAVETABLEs need to be setup globals in SDRAM and drilled down.
+ */
+static constexpr int MAX_SLOTS = 36;
+
+static waveTable DSY_SDRAM_BSS saw_wt[MAX_SLOTS];
+static int total_saw_slots = 0;
+
+static waveTable DSY_SDRAM_BSS sqr_wt[MAX_SLOTS];
+static int total_sqr_slots = 0;
+
+static WaveSlot DSY_SDRAM_BSS wt_slots[2];
+
+void zeroFillWaveTables() {
+  for (int idx = 0; idx < MAX_SLOTS; idx++) {
+    sqr_wt[idx].topFreq = saw_wt[idx].topFreq = 0;
+    sqr_wt[idx].waveTableLen = saw_wt[idx].waveTableLen = 0;
+    sqr_wt[idx].waveTable = saw_wt[idx].waveTable = 0;
   }
-  load_meter.OnBlockEnd();
+}
+
+void buildWavetableSlots() {
+  // Populate SDRAM WaveTables
+  zeroFillWaveTables();
+
+  // Slot 0 is a SAW
+  sawOsc(saw_wt, &total_saw_slots, MAX_SLOTS);
+  WaveSlot slot0 = {.wt = saw_wt, .wt_slots = total_saw_slots};
+  wt_slots[0] = slot0;
+
+  // Slot 1 is a SQUARE
+  sqrOsc(sqr_wt, &total_sqr_slots, MAX_SLOTS);
+  WaveSlot slot1 = {.wt = sqr_wt, .wt_slots = total_sqr_slots};
+  wt_slots[1] = slot1;
+}
+
+static Engine engine;
+
+void Tick(void *data) { engine.tick(); }
+
+static void AudioCallback(AudioHandle::InputBuffer in,
+                          AudioHandle::OutputBuffer out, size_t size) {
+  engine.HandleAudioCallback(out, size);
 }
 
 int main(void) {
+  // Setup Seed
+  float sample_rate;
   hw.Configure();
   hw.Init();
 
-  // Start Serial LOG
-  hw.StartLog();
+  buildWavetableSlots();
 
-  // Config Display
-  SynthOledDisplay::Config disp_cfg;
-  disp_cfg.driver_config.transport_config.pin_config.dc = hw.GetPin(11);
-  disp_cfg.driver_config.transport_config.pin_config.reset = hw.GetPin(13);
-  display.Init(disp_cfg);
-
-  // Configure AUDIO/MIDI
-  hw.SetAudioBlockSize(16); // number of samples handled per callback
+  hw.SetAudioBlockSize(4); // number of samples handled per callback
   hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
-  // MidiUartHandler::Config midi_cfg;
-  // midi_cfg.transport_config.periph =
-  // UartHandler::Config::Peripheral::USART_1; midi_cfg.transport_config.rx =
-  // hw.GetPin(7); midi_cfg.transport_config.tx = hw.GetPin(6);
-  // midi.Init(midi_cfg);
+  sample_rate = hw.AudioSampleRate();
 
-  load_meter.Init(hw.AudioSampleRate(), hw.AudioBlockSize());
+  // Setup timer
+  TimerHandle tim5;
+  TimerHandle::Config tim_config;
+  tim_config.periph = TimerHandle::Config::Peripheral::TIM_5;
+  tim_config.enable_irq = true;
+  auto tim_target_freq = 48;
+  auto time_base_req = System::GetPClk2Freq();
+  tim_config.period = time_base_req / tim_target_freq;
+  tim5.Init(tim_config);
+  tim5.SetCallback(Tick);
 
+  // Init MIDI
+  MidiUsbHandler::Config midi_cfg;
+  midi_cfg.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
+  midi.Init(midi_cfg);
+
+  // Initialize UI
+  engine.Init(&hw, &load_meter, &midi, sample_rate);
+
+  // Set static slots
+  engine.voice_manager.SetWavetable(wt_slots);
+
+  // Start Callback
   hw.StartAudio(AudioCallback);
 
-  char strbuff1[128];
-  char strbuff2[128];
-  char strbuff3[128];
+  tim5.Start();
   while (1) {
-    const float avg_load = load_meter.GetAvgCpuLoad();
-    const float max_load = load_meter.GetMaxCpuLoad();
-    const float min_load = load_meter.GetMinCpuLoad();
-
-    System::Delay(600);
-
-    display.Fill(false);
-
-    display.SetCursor(0, 0);
-    display.WriteString("CPU----------------", Font_7x10, true);
-
-    sprintf(strbuff1, "Max:" FLT_FMT3, FLT_VAR3(max_load * 100.0f));
-    display.SetCursor(0, 14);
-    display.WriteString(strbuff1, Font_7x10, true);
-
-    sprintf(strbuff2, "Avg:" FLT_FMT3, FLT_VAR3(avg_load * 100.0f));
-    display.SetCursor(0, 28);
-    display.WriteString(strbuff2, Font_7x10, true);
-
-    sprintf(strbuff3, "Min:" FLT_FMT3, FLT_VAR3(min_load * 100.0f));
-    display.SetCursor(0, 42);
-    display.WriteString(strbuff3, Font_7x10, true);
-
-    display.Update();
-
-    // hw.PrintLine("Processing load %:");
-    // System::Delay(1000);
-
-    // midi.Listen();
-
-    // while (midi.HasEvents()) {
-    //   hw.PrintLine("MIDI");
-    //   auto msg = midi.PopEvent();
-
-    //   switch (msg.type) {
-    //   case NoteOn:
-    //     hw.PrintLine("MIDI");
-    //     break;
-    //   default:
-    //     break;
-    //   }
-    // }
+    engine.ListenToMidi();
   }
 }
