@@ -1,8 +1,4 @@
 #include "daisy_seed.h"
-#include "daisysp.h"
-#include "dev/oled_ssd130x.h"
-#include <stdio.h>
-#include <string.h>
 
 #include "synth_ui.h"
 
