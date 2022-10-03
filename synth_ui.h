@@ -2,6 +2,7 @@
 // #define VF_UI
 
 #include "table_encoder.h"
+#include <arm_math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -34,12 +35,14 @@ public:
     System::Delay(1000);
   }
 
+  float GetFreq() { return y * 10000.0f; }
+
   int8_t Read() { return e.Read(); }
 
   void tick() {
     ticker++;
 
-    if (ticker % 100) {
+    if (ticker % 100 == 0) {
       switch (Read()) {
       case 1:
         x = x + 0.1f;
@@ -53,30 +56,26 @@ public:
       }
     }
 
-    if (ticker % 100000) {
+    if (ticker % 100000 == 0) {
+      float input = hw->adc.GetFloat(0);
+      y = 0.9f * (input - y) + y;
+    }
+
+    if (ticker % 100000 == 0) {
       const float avg_load = load_meter->GetAvgCpuLoad();
-      const float max_load = load_meter->GetMaxCpuLoad();
-      const float min_load = load_meter->GetMinCpuLoad();
 
       display.Fill(false);
 
+      sprintf(strbuff2, "LOAD:" FLT_FMT3, FLT_VAR3(avg_load * 100.0f));
       display.SetCursor(0, 0);
-      display.WriteString("CPU----------------", Font_7x10, true);
-
-      sprintf(strbuff1, "Max:" FLT_FMT3, FLT_VAR3(max_load * 100.0f));
-      display.SetCursor(0, 14);
-      display.WriteString(strbuff1, Font_6x8, true);
-
-      sprintf(strbuff2, "Avg:" FLT_FMT3, FLT_VAR3(avg_load * 100.0f));
-      display.SetCursor(0, 28);
       display.WriteString(strbuff2, Font_6x8, true);
 
-      sprintf(strbuff3, "Min:" FLT_FMT3, FLT_VAR3(min_load * 100.0f));
-      display.SetCursor(0, 42);
-      display.WriteString(strbuff3, Font_6x8, true);
+      sprintf(pot, "y:" FLT_FMT3, FLT_VAR3(GetFreq()));
+      display.SetCursor(0, 52);
+      display.WriteString(pot, Font_6x8, true);
 
       sprintf(my_output, "x:" FLT_FMT3, FLT_VAR3(x));
-      display.SetCursor(30, 52);
+      display.SetCursor(64, 52);
       display.WriteString(my_output, Font_6x8, true);
 
       display.Update();
@@ -85,6 +84,7 @@ public:
 
 private:
   float x = 0.0f;
+  float y = 0.0f;
   uint32_t ticker = 0;
   TableEncoder e;
   DaisySeed *hw;
@@ -93,9 +93,8 @@ private:
   CpuLoadMeter *load_meter;
 
   char my_output[128];
-  char strbuff1[128];
+  char pot[128];
   char strbuff2[128];
-  char strbuff3[128];
 };
 
 } // namespace daisy
