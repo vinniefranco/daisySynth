@@ -5,16 +5,6 @@
 
 class TableEncoder {
 public:
-  enum ActionType {
-    NOTHING = 0,
-    SINGLE_PRESS,
-    LONG_PRESS,
-    DOUBLE_PRESS,
-    TRIPLE_PRESS,
-    INCREASE,
-    DECREASE
-  };
-
   void Init(daisy::Pin clk, daisy::Pin data, daisy::Pin swth) {
 
     store = 0;

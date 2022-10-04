@@ -85,6 +85,10 @@ public:
 
       uint_fast8_t position = (value / 12000.0f) * 120.0f;
 
+      sprintf(pot, "x:" FLT_FMT3, FLT_VAR3(x));
+      display.SetCursor(0, 24);
+      display.WriteString(pot, Font_6x8, true);
+
       sprintf(pot, "HZ:" FLT_FMT3, FLT_VAR3(value));
       display.SetCursor(0, 52);
       display.WriteString(pot, Font_6x8, true);
