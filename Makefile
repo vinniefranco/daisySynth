@@ -3,7 +3,7 @@ APP_TYPE = BOOT_SRAM
 TARGET = synth
 
 # Sources
-CPP_SOURCES = synth.cpp
+CPP_SOURCES = synth.cpp 
 
 # Library Locations
 LIBDAISY_DIR = ../DaisyExamples/libDaisy/
