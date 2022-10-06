@@ -1,15 +1,31 @@
 #include "VoiceManager.h"
 
+#include "sys/system.h"
+
 Voice *VoiceManager::findFreeVoice() {
   Voice *freeVoice = NULL;
+  Voice *stolenVoice = NULL;
+  uint32_t oldest = 0;
+
   for (int i = 0; i < NumberOfVoices; i++) {
     if (!voices[i].isActive) {
       freeVoice = &(voices[i]);
-      break;
+      freeVoice->started_at = daisy::System::GetNow();
+    } else {
+      if (voices[i].started_at > oldest) {
+        oldest = voices[i].started_at;
+        stolenVoice = &(voices[i]);
+      }
     }
   }
+  if (freeVoice == NULL) {
+    stolenVoice->started_at = daisy::System::GetNow();
+    return stolenVoice;
+  }
+
   return freeVoice;
 }
+
 void VoiceManager::onNoteOn(int noteNumber, int velocity) {
   Voice *voice = findFreeVoice();
   if (!voice) {
@@ -19,30 +35,46 @@ void VoiceManager::onNoteOn(int noteNumber, int velocity) {
   voice->setNoteNumber(noteNumber);
   voice->mVelocity = velocity;
   voice->isActive = true;
-  // voice->mVolumeEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
-  // voice->mFilterEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
+  voice->mVolumeEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
+  voice->mFilterEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
 }
 void VoiceManager::onNoteOff(int noteNumber, int velocity) {
   // Find the voice with given note number
   for (int i = 0; i < NumberOfVoices; i++) {
     Voice &voice = voices[i];
+
     if (voice.isActive && voice.mNoteNumber == noteNumber) {
-      voice.setFree();
-      voice.reset();
-      // voice.mVolumeEnvelope.enterStage(
-      //     EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
-      // voice.mFilterEnvelope.enterStage(
-      //     EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
+      voice.mVolumeEnvelope.enterStage(
+          EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
+      voice.mFilterEnvelope.enterStage(
+          EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
     }
   }
 }
-float VoiceManager::nextSample() {
-  float output = 0.0;
-  // float lfoValue = mLFO.nextSample();
+
+void VoiceManager::setFilterCutoff(float cutoff) {
   for (int i = 0; i < NumberOfVoices; i++) {
     Voice &voice = voices[i];
-    // voice.setLFOValue(lfoValue);
-    output += voice.nextSample();
+    voice.mFilter.setCutoff(cutoff);
+  }
+}
+
+void VoiceManager::setFilterResonance(float cutoff) {
+  for (int i = 0; i < NumberOfVoices; i++) {
+    Voice &voice = voices[i];
+    voice.mFilter.setResonance(cutoff);
+  }
+}
+
+float VoiceManager::nextSample() {
+  float output = 0.0;
+  float lfoValue = mLFO.Process();
+  for (int i = 0; i < NumberOfVoices; i++) {
+    Voice &voice = voices[i];
+    if (voice.isActive) {
+      voice.setLFOValue(lfoValue);
+      output += voice.nextSample();
+    }
   }
   return output;
 }

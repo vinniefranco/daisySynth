@@ -34,16 +34,7 @@ public:
     System::Delay(1000);
   }
 
-  float GetFreq() {
-    float min = 60.0f;
-    float max = 12000.0f;
-    float lmin = logf(min < 0.0000001f ? 0.0000001f : min);
-    float lmax = logf(max);
-
-    float val = y;
-
-    return expf((val * (lmax - lmin)) + lmin);
-  }
+  float GetFreq() { return y; }
 
   float GetRes() { return hw->adc.GetFloat(1) - 0.1f; }
 
@@ -76,13 +67,9 @@ public:
 
       float value = GetFreq();
 
-      uint_fast8_t position = (value / 12000.0f) * 120.0f;
+      uint_fast8_t position = value * 120.0f;
 
       sprintf(pot, "x:" FLT_FMT3, FLT_VAR3(x));
-      display.SetCursor(0, 24);
-      display.WriteString(pot, Font_6x8, true);
-
-      sprintf(pot, "HZ:" FLT_FMT3, FLT_VAR3(value));
       display.SetCursor(0, 52);
       display.WriteString(pot, Font_6x8, true);
 

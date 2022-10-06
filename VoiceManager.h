@@ -5,17 +5,19 @@
 
 class VoiceManager {
 private:
-  static const int NumberOfVoices = 6;
+  static const int NumberOfVoices = 8;
   Voice voices[NumberOfVoices];
-  // POscillator mLFO;
+  daisysp::Oscillator mLFO;
   Voice *findFreeVoice();
 
 public:
   void onNoteOn(int noteNumber, int velocity);
   void onNoteOff(int noteNumber, int velocity);
+  void setFilterCutoff(float cutoff);
+  void setFilterResonance(float resonance);
   float nextSample();
   void setSampleRate(float sampleRate) {
-    // EnvelopeGenerator::setSampleRate(sampleRate);
+    EnvelopeGenerator::setSampleRate(sampleRate);
     for (int i = 0; i < NumberOfVoices; i++) {
       Voice &voice = voices[i];
       voice.mOscOne.Init(sampleRate);
@@ -26,23 +28,22 @@ public:
       voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_POLYBLEP_SAW);
       voice.mOscTwo.SetAmp(.25);
     }
-    // mLFO.setSampleRate(sampleRate);
+    mLFO.Init(sampleRate);
+    mLFO.SetWaveform(mLFO.WAVE_POLYBLEP_TRI);
   }
   // inline void setLFOMode(POscillator::POscillatorMode mode) {
   //   mLFO.setMode(mode);
   // };
-  // inline void setLFOFrequency(float frequency) {
-  //   mLFO.setFrequency(frequency);
-  // };
+  inline void setLFOFrequency(float frequency) { mLFO.SetFreq(frequency); };
   // Functions to change a single voice
-  // static void setVolumeEnvelopeStageValue(
-  //     Voice &voice, EnvelopeGenerator::EnvelopeStage stage, float value) {
-  //   voice.mVolumeEnvelope.setStageValue(stage, value);
-  // }
-  // static void setFilterEnvelopeStageValue(
-  //     Voice &voice, EnvelopeGenerator::EnvelopeStage stage, float value) {
-  //   voice.mFilterEnvelope.setStageValue(stage, value);
-  // }
+  static void setVolumeEnvelopeStageValue(
+      Voice &voice, EnvelopeGenerator::EnvelopeStage stage, float value) {
+    voice.mVolumeEnvelope.setStageValue(stage, value);
+  }
+  static void setFilterEnvelopeStageValue(
+      Voice &voice, EnvelopeGenerator::EnvelopeStage stage, float value) {
+    voice.mFilterEnvelope.setStageValue(stage, value);
+  }
   // static void setOscillatorMode(Voice &voice, int oscillatorNumber,
   //                               POscillator::POscillatorMode mode) {
   //   switch (oscillatorNumber) {
@@ -68,22 +69,16 @@ public:
   static void setOscillatorMix(Voice &voice, float value) {
     voice.setOscMix(value);
   }
-  // static void setFilterCutoff(Voice &voice, float cutoff) {
-  //   voice.mFilter.setCutoff(cutoff);
-  // }
-  // static void setFilterResonance(Voice &voice, float resonance) {
-  //   voice.mFilter.setResonance(resonance);
-  // }
-  // static void setFilterMode(Voice &voice, Filter::FilterMode mode) {
-  //   voice.mFilter.setFilterMode(mode);
-  // }
+  static void setFilterMode(Voice &voice, Filter::FilterMode mode) {
+    voice.mFilter.setFilterMode(mode);
+  }
 
-  // static void setFilterEnvAmount(Voice &voice, double amount) {
-  //   voice.setFilterEnvelopeAmount(amount);
-  // }
-  // static void setFilterLFOAmount(Voice &voice, double amount) {
-  //   voice.setFilterLFOAmount(amount);
-  // }
+  static void setFilterEnvAmount(Voice &voice, float amount) {
+    voice.setFilterEnvelopeAmount(amount);
+  }
+  static void setFilterLFOAmount(Voice &voice, float amount) {
+    voice.setFilterLFOAmount(amount);
+  }
 };
 
 #endif
