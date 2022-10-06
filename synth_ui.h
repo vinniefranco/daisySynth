@@ -1,5 +1,4 @@
-// #ifdef VF_UI
-// #define VF_UI
+#pragma once
 
 #include "table_encoder.h"
 #include <arm_math.h>
@@ -51,28 +50,22 @@ public:
   int8_t Read() { return e.Read(); }
 
   void tick() {
-    ticker++;
+    switch (Read()) {
+    case 1:
+      x = x + 0.1f;
+      break;
+
+    case -1:
+      x = x - 0.1f;
+      break;
+    default:
+      break;
+    }
+
+    float input = hw->adc.GetFloat(0);
+    y = 0.9f * (input - y) + y;
 
     if (ticker % 100 == 0) {
-      switch (Read()) {
-      case 1:
-        x = x + 0.1f;
-        break;
-
-      case -1:
-        x = x - 0.1f;
-        break;
-      default:
-        break;
-      }
-    }
-
-    if (ticker % 100000 == 0) {
-      float input = hw->adc.GetFloat(0);
-      y = 0.9f * (input - y) + y;
-    }
-
-    if (ticker % 100000 == 0) {
       const float avg_load = load_meter->GetAvgCpuLoad();
 
       display.Fill(false);
@@ -103,7 +96,7 @@ public:
 private:
   float x = 0.0f;
   float y = 0.0f;
-  uint32_t ticker = 0;
+  uint16_t ticker = 0;
   TableEncoder e;
   DaisySeed *hw;
   SynthOledDisplay::Config disp_cfg;
@@ -116,4 +109,3 @@ private:
 };
 
 } // namespace daisy
-// #endif // VF_UI

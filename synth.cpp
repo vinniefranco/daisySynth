@@ -1,44 +1,61 @@
+#include "VoiceManager.h"
 #include "daisy_seed.h"
 #include "synth_ui.h"
+
+#define LEFT (i)
+#define RIGHT (i + 1)
 
 using namespace daisy;
 using namespace daisy::seed;
 using namespace daisysp;
 
 DaisySeed hw;
-static MoogLadder flt1, flt2, flt3;
-static Oscillator osc1, osc2, osc3, lfo;
+static VoiceManager voiceManager;
+static MoogLadder flt;
+static Oscillator osc;
+static Adsr env;
 static SynthUI ui;
-static Chorus chorus;
+static Metro tick;
+
+int melody[5] = {43, 50, 53, 60, 65};
+int counter = 0;
 
 // MidiUartHandler midi;
 // MidiUsbHandler midi;
 CpuLoadMeter load_meter;
 
-static void AudioCallback(AudioHandle::InputBuffer in,
-                          AudioHandle::OutputBuffer out, size_t size) {
-  float saw1, saw2, saw3, freq, output;
+void Tick(void *data) { ui.tick(); }
+
+static void AudioCallback(AudioHandle::InterleavingInputBuffer in,
+                          AudioHandle::InterleavingOutputBuffer out,
+                          size_t size) {
+  float output;
+  int back_key;
 
   load_meter.OnBlockStart();
-  for (size_t i = 0; i < size; i++) {
-    freq = lfo.Process();
-    saw1 = osc1.Process() + freq;
-    saw2 = osc2.Process();
-    saw3 = osc3.Process();
+  for (size_t i = 0; i < size; i += 2) {
+    if (tick.Process()) {
+      // voiceManager.onNoteOff(melody[counter - 1 % 4], 80);
+      voiceManager.onNoteOn(melody[counter], 80);
+      back_key = counter - 1 % 5;
+      counter = 1 + counter % 5;
 
-    flt1.SetRes(ui.GetRes());
-    flt1.SetFreq(ui.GetFreq());
+      voiceManager.onNoteOff(melody[back_key], 80);
+    }
 
-    flt2.SetRes(ui.GetRes());
-    flt2.SetFreq(ui.GetFreq());
+    // env_out = env.Process(gate);
+    // osc.SetAmp(env_out);
 
-    flt3.SetRes(ui.GetRes());
-    flt3.SetFreq(ui.GetFreq());
+    // saw = osc.Process();
 
-    output = (flt1.Process(saw1) + flt2.Process(saw2) + flt3.Process(saw3));
+    // flt.SetRes(ui.GetRes());
+    // flt.SetFreq(ui.GetFreq());
 
-    out[0][i] = output;
-    out[1][i] = output;
+    // output = flt.Process(saw);
+    output = voiceManager.nextSample();
+
+    out[LEFT] = output;
+    out[RIGHT] = output;
   }
   load_meter.OnBlockEnd();
 }
@@ -65,42 +82,26 @@ int main(void) {
   // Start Serial LOG
   hw.StartLog();
 
+  TimerHandle tim5;
+  TimerHandle::Config tim_config;
+
+  tim_config.periph = TimerHandle::Config::Peripheral::TIM_5;
+  tim_config.enable_irq = true;
+
+  auto tim_target_freq = 256;
+  auto time_base_req = System::GetPClk2Freq();
+  tim_config.period = time_base_req / tim_target_freq;
+  tim5.Init(tim_config);
+  tim5.SetCallback(Tick);
+
   // Configure
-
-  osc1.Init(sample_rate);
-  osc1.SetWaveform(osc1.WAVE_POLYBLEP_SAW);
-  osc1.SetAmp(0.20f);
-  osc1.SetFreq(87.31f);
-
-  osc2.Init(sample_rate);
-  osc2.SetWaveform(osc2.WAVE_POLYBLEP_SAW);
-  osc2.SetAmp(0.30f);
-  osc2.SetFreq(43.65f);
-
-  osc3.Init(sample_rate);
-  osc3.SetWaveform(osc2.WAVE_POLYBLEP_SAW);
-  osc3.SetAmp(0.10f);
-  osc3.SetFreq(86.41f);
-
-  flt1.Init(sample_rate);
-  flt1.SetRes(0.2);
-  flt1.SetFreq(440.0);
-
-  flt2.Init(sample_rate);
-  flt2.SetRes(0.2);
-  flt2.SetFreq(440.0);
-
-  flt3.Init(sample_rate);
-  flt3.SetRes(0.2);
-  flt3.SetFreq(440.0);
-
-  lfo.Init(sample_rate);
-  lfo.SetWaveform(Oscillator::WAVE_POLYBLEP_TRI);
-  lfo.SetAmp(0.02);
-  lfo.SetFreq(0.1);
+  tick.Init(4.0f, sample_rate);
 
   // Initialize UI
   ui.Init(&hw, &load_meter, D17, D16, D15);
+
+  voiceManager.setSampleRate(sample_rate);
+  voiceManager.onNoteOn(40, 80);
 
   // MidiUartHandler::Config midi_cfg;
   // midi_cfg.transport_config.periph =
@@ -116,7 +117,7 @@ int main(void) {
   // Start Callback
   hw.StartAudio(AudioCallback);
 
+  tim5.Start();
   while (1) {
-    ui.tick();
   }
 }

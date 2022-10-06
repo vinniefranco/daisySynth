@@ -1,9 +1,12 @@
 # Project Name
-APP_TYPE = BOOT_SRAM
+# APP_TYPE = BOOT_SRAM
 TARGET = synth
+DEBUG = 1
 
 # Sources
 CPP_SOURCES = synth.cpp 
+CPP_SOURCES += Voice.cpp 
+CPP_SOURCES += VoiceManager.cpp 
 
 # Library Locations
 LIBDAISY_DIR = ../DaisyExamples/libDaisy/
