@@ -15,6 +15,7 @@ public:
         mFilterLFOAmount(0.0), mOscOnePitchAmount(0.0), mOscTwoPitchAmount(0.0),
         mLFOValue(0.0), isActive(false) {
     mVolumeEnvelope.finishedEnvelopeCycle.Connect(this, &Voice::setFree);
+    mFilter.Init(48000.0f);
   };
 
   inline void setFilterEnvelopeAmount(float amount) {
@@ -44,7 +45,8 @@ private:
   daisysp::Oscillator mOscTwo;
   EnvelopeGenerator mVolumeEnvelope;
   EnvelopeGenerator mFilterEnvelope;
-  Filter mFilter;
+  // Filter mFilter;
+  daisysp::MoogLadder mFilter;
   int mNoteNumber;
   int mVelocity;
   float mFilterEnvelopeAmount;

@@ -1,6 +1,3 @@
-#include "../fpm/include/fpm/fixed.hpp"
-#include "../fpm/include/fpm/math.hpp"
-
 #include "VoiceManager.h"
 #include "daisy_seed.h"
 #include "synth_ui.h"

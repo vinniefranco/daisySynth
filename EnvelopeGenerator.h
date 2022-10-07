@@ -4,6 +4,9 @@
 #include "GallantSignal.h"
 #include <arm_math.h>
 
+#include "../../../fpm//include/fpm/fixed.hpp"
+#include "../../../fpm//include/fpm/math.hpp"
+
 class EnvelopeGenerator {
 public:
   enum EnvelopeStage {
@@ -48,7 +51,7 @@ private:
   static float sampleRate;
   float stageValue[kNumEnvelopeStages];
   void calculateMultiplier(float startLevel, float endLevel,
-                           unsigned long long lengthInSamples);
+                           float lengthInSamples);
   unsigned long long currentSampleIndex;
   unsigned long long nextStageSampleIndex;
 };

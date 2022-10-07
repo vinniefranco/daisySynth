@@ -34,8 +34,9 @@ float EnvelopeGenerator::nextSample() {
   Based on Christian Schoenebeck's Fast Exponential Envelope Generator
   http://www.musicdsp.org/showone.php?id=189
   */
-void EnvelopeGenerator::calculateMultiplier(
-    float startLevel, float endLevel, unsigned long long lengthInSamples) {
+void EnvelopeGenerator::calculateMultiplier(float startLevel, float endLevel,
+                                            float lengthInSamples) {
+
   multiplier = 1.0 + (log(endLevel) - log(startLevel)) / (lengthInSamples);
 }
 /**
@@ -145,8 +146,7 @@ void EnvelopeGenerator::setStageValue(EnvelopeStage stage, float value) {
   if (currentStage == ENVELOPE_STAGE_DECAY && stage == ENVELOPE_STAGE_SUSTAIN) {
     // We have to decay to a different sustain value than before
     // and re-calculate multiplier
-    unsigned long long sampleUntilNextStage =
-        nextStageSampleIndex - currentSampleIndex;
+    float sampleUntilNextStage = nextStageSampleIndex - currentSampleIndex;
     calculateMultiplier(currentLevel,
                         fmax(stageValue[ENVELOPE_STAGE_SUSTAIN], minimumLevel),
                         sampleUntilNextStage);

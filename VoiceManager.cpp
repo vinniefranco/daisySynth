@@ -53,16 +53,17 @@ void VoiceManager::onNoteOff(int noteNumber, int velocity) {
 }
 
 void VoiceManager::setFilterCutoff(float cutoff) {
+  float newCutoff = expf(cutoff * (lmax_ - lmin_) + lmin_);
   for (int i = 0; i < NumberOfVoices; i++) {
     Voice &voice = voices[i];
-    voice.mFilter.setCutoff(cutoff);
+    voice.mFilter.SetFreq(newCutoff);
   }
 }
 
 void VoiceManager::setFilterResonance(float cutoff) {
   for (int i = 0; i < NumberOfVoices; i++) {
     Voice &voice = voices[i];
-    voice.mFilter.setResonance(cutoff);
+    voice.mFilter.SetRes(cutoff);
   }
 }
 

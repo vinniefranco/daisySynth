@@ -9,15 +9,8 @@ float Voice::nextSample() {
       ((1 - mOscMix) * oscillatorOneOutput) + (mOscMix * oscillatorTwoOutput);
 
   float volumeEnvelopeValue = mVolumeEnvelope.nextSample();
-  float filterEnvelopeValue = mFilterEnvelope.nextSample();
 
-  // mFilter.setCutoffMod(filterEnvelopeValue * mFilterEnvelopeAmount +
-  //                      mLFOValue * mFilterLFOAmount);
-
-  // mOscOne.setPitchMod(mLFOValue * mOscOnePitchAmount);
-  // mOscTwo.setPitchMod(mLFOValue * mOscTwoPitchAmount);
-
-  return mFilter.process(oscillatorSum * volumeEnvelopeValue * mVelocity /
+  return mFilter.Process(oscillatorSum * volumeEnvelopeValue * mVelocity /
                          127.0);
 }
 void Voice::setFree() { isActive = false; }
@@ -28,5 +21,5 @@ void Voice::reset() {
   mOscTwo.Reset(0);
   mVolumeEnvelope.reset();
   mFilterEnvelope.reset();
-  mFilter.reset();
+  mFilter.Init(48000.0f);
 }

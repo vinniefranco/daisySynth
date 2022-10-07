@@ -5,7 +5,9 @@
 
 class VoiceManager {
 private:
-  static const int NumberOfVoices = 8;
+  float lmin_ = logf(60.0f < 0.0000001f ? 0.0000001f : 60.0f);
+  float lmax_ = logf(15000.0f);
+  static const int NumberOfVoices = 6;
   Voice voices[NumberOfVoices];
   daisysp::Oscillator mLFO;
   Voice *findFreeVoice();
@@ -22,11 +24,11 @@ public:
       Voice &voice = voices[i];
       voice.mOscOne.Init(sampleRate);
       voice.mOscOne.SetWaveform(voice.mOscOne.WAVE_POLYBLEP_SAW);
-      voice.mOscOne.SetAmp(.25);
+      voice.mOscOne.SetAmp(.25f);
 
       voice.mOscTwo.Init(sampleRate);
       voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_POLYBLEP_SAW);
-      voice.mOscTwo.SetAmp(.25);
+      voice.mOscTwo.SetAmp(.25f);
     }
     mLFO.Init(sampleRate);
     mLFO.SetWaveform(mLFO.WAVE_POLYBLEP_TRI);
@@ -68,9 +70,6 @@ public:
   // }
   static void setOscillatorMix(Voice &voice, float value) {
     voice.setOscMix(value);
-  }
-  static void setFilterMode(Voice &voice, Filter::FilterMode mode) {
-    voice.mFilter.setFilterMode(mode);
   }
 
   static void setFilterEnvAmount(Voice &voice, float amount) {
