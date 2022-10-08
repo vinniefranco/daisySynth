@@ -5,10 +5,10 @@ DEBUG = 1
 
 # Sources
 CPP_SOURCES = synth.cpp 
-CPP_SOURCES += Voice.cpp 
-CPP_SOURCES += VoiceManager.cpp 
-CPP_SOURCES += EnvelopeGenerator.cpp 
-CPP_SOURCES += Filter.cpp 
+CPP_SOURCES += engine/Voice.cpp 
+CPP_SOURCES += engine/VoiceManager.cpp 
+CPP_SOURCES += engine/EnvelopeGenerator.cpp 
+CPP_SOURCES += engine/Filter.cpp 
 
 # Library Locations
 LIBDAISY_DIR = ../DaisyExamples/libDaisy/

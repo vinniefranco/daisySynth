@@ -79,3 +79,10 @@ float VoiceManager::nextSample() {
   }
   return output;
 }
+
+void VoiceManager::Process(float *left, float *right) {
+  float output = nextSample();
+
+  *left = output;
+  *right = output;
+}

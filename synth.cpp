@@ -1,4 +1,5 @@
-#include "VoiceManager.h"
+#include "engine/VoiceManager.h"
+
 #include "daisy_seed.h"
 #include "synth_ui.h"
 
@@ -25,16 +26,13 @@ uint8_t inc = 0;
 
 void Tick(void *data) { ui.tick(); }
 
-static void AudioCallback(AudioHandle::InterleavingInputBuffer in,
-                          AudioHandle::InterleavingOutputBuffer out,
-                          size_t size) {
-  float output;
-
+static void AudioCallback(AudioHandle::InputBuffer in,
+                          AudioHandle::OutputBuffer out, size_t size) {
   load_meter.OnBlockStart();
   voiceManager.setFilterCutoff(ui.GetFreq());
   voiceManager.setFilterResonance(ui.GetRes());
 
-  for (size_t i = 0; i < size; i += 2) {
+  for (size_t i = 0; i < size; i++) {
     if (tick.Process()) {
       if (inc % 2 == 0) {
         voiceManager.onNoteOn(melody[counter % 8], 80);
@@ -45,11 +43,7 @@ static void AudioCallback(AudioHandle::InterleavingInputBuffer in,
 
       inc++;
     }
-
-    output = voiceManager.nextSample();
-
-    out[LEFT] = output;
-    out[RIGHT] = output;
+    voiceManager.Process(&out[0][i], &out[1][i]);
   }
   load_meter.OnBlockEnd();
 }
@@ -82,7 +76,7 @@ int main(void) {
   tim_config.periph = TimerHandle::Config::Peripheral::TIM_5;
   tim_config.enable_irq = true;
 
-  auto tim_target_freq = 256;
+  auto tim_target_freq = 64;
   auto time_base_req = System::GetPClk2Freq();
   tim_config.period = time_base_req / tim_target_freq;
   tim5.Init(tim_config);
@@ -96,6 +90,7 @@ int main(void) {
           daisy::seed::D15);
 
   voiceManager.setSampleRate(sample_rate);
+  voiceManager.setLFOFrequency(0.03f);
 
   MidiUsbHandler::Config midi_cfg;
   midi_cfg.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
@@ -128,8 +123,6 @@ int main(void) {
 
       } break;
       default:
-        int type = msg.type;
-
         break;
       }
     }

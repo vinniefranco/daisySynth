@@ -4,9 +4,6 @@
 #include "GallantSignal.h"
 #include <arm_math.h>
 
-#include "../../../fpm//include/fpm/fixed.hpp"
-#include "../../../fpm//include/fpm/math.hpp"
-
 class EnvelopeGenerator {
 public:
   enum EnvelopeStage {
@@ -40,8 +37,8 @@ public:
     stageValue[ENVELOPE_STAGE_OFF] = 0.0;
     stageValue[ENVELOPE_STAGE_ATTACK] = 0.04; // 0.01
     stageValue[ENVELOPE_STAGE_DECAY] = 1.2;   // 0.5
-    stageValue[ENVELOPE_STAGE_SUSTAIN] = 0.1;
-    stageValue[ENVELOPE_STAGE_RELEASE] = 2.0; // 1.0
+    stageValue[ENVELOPE_STAGE_SUSTAIN] = 0.8;
+    stageValue[ENVELOPE_STAGE_RELEASE] = 0.5; // 1.0
   };
 
 private:

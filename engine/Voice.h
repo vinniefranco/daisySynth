@@ -34,7 +34,7 @@ public:
     mNoteNumber = noteNumber;
     float frequency = daisysp::mtof(noteNumber);
     mOscOne.SetFreq(frequency);
-    mOscTwo.SetFreq(frequency);
+    mOscTwo.SetFreq(frequency - 0.7f);
   }
   float nextSample();
   void setFree();

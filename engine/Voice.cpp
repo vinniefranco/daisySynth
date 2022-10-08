@@ -17,8 +17,8 @@ void Voice::setFree() { isActive = false; }
 void Voice::reset() {
   mNoteNumber = -1;
   mVelocity = 0;
-  mOscOne.Reset(0);
-  mOscTwo.Reset(0);
+  mOscOne.Reset();
+  mOscTwo.Reset();
   mVolumeEnvelope.reset();
   mFilterEnvelope.reset();
   mFilter.Init(48000.0f);
