@@ -25,11 +25,11 @@ public:
       Voice &voice = voices[i];
       voice.mOscOne.Init(sampleRate);
       voice.mOscOne.SetWaveform(voice.mOscOne.WAVE_SAW);
-      voice.mOscOne.SetAmp(.1f);
+      voice.mOscOne.SetAmp(1.0f);
 
       voice.mOscTwo.Init(sampleRate);
       voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_SAW);
-      voice.mOscTwo.SetAmp(.1f);
+      voice.mOscTwo.SetAmp(1.0f);
     }
     mLFO.Init(sampleRate);
     mLFO.SetWaveform(mLFO.WAVE_TRI);

@@ -82,7 +82,12 @@ float VoiceManager::nextSample() {
 
 void VoiceManager::Process(float *left, float *right) {
   float output = nextSample();
+  // Quick hard clipping
+  if (output > 1.0f)
+    output = 1.0f;
 
-  *left = output;
-  *right = output;
+  if (output < -1.0f)
+    output = -1.0f;
+
+  *left = *right = nextSample();
 }

@@ -21,5 +21,5 @@ void Voice::reset() {
   mOscTwo.Reset();
   mVolumeEnvelope.reset();
   mFilterEnvelope.reset();
-  mFilter.Init(48000.0f);
+  // mFilter.Init(48000.0f);
 }

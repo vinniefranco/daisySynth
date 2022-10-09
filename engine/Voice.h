@@ -1,7 +1,6 @@
 #pragma once
 
 #include "EnvelopeGenerator.h"
-#include "Filter.h"
 #include <arm_math.h>
 
 #include "daisysp.h"
@@ -41,11 +40,10 @@ public:
   void reset();
 
 private:
-  daisysp::Oscillator mOscOne;
-  daisysp::Oscillator mOscTwo;
+  daisysp::BlOsc mOscOne;
+  daisysp::BlOsc mOscTwo;
   EnvelopeGenerator mVolumeEnvelope;
   EnvelopeGenerator mFilterEnvelope;
-  // Filter mFilter;
   daisysp::MoogLadder mFilter;
   int mNoteNumber;
   int mVelocity;

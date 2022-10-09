@@ -1,10 +1,8 @@
-#include "engine/VoiceManager.h"
-
 #include "daisy_seed.h"
-#include "synth_ui.h"
+#include <queue>
 
-#define LEFT (i)
-#define RIGHT (i + 1)
+#include "engine/VoiceManager.h"
+#include "synth_ui.h"
 
 using namespace daisy;
 using namespace daisysp;
@@ -15,6 +13,8 @@ CpuLoadMeter load_meter;
 static VoiceManager voiceManager;
 static SynthUI ui;
 static Metro tick;
+
+std::queue<int> g;
 
 int melody[8] = {48 - 12, 52 - 12, 55 - 12, 59 - 12,
                  60 - 12, 59 - 12, 55 - 12, 52 - 12};
@@ -43,6 +43,7 @@ static void AudioCallback(AudioHandle::InputBuffer in,
 
       inc++;
     }
+
     voiceManager.Process(&out[0][i], &out[1][i]);
   }
   load_meter.OnBlockEnd();
