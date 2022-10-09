@@ -5,9 +5,10 @@
 
 class VoiceManager {
 private:
+  float midi[127];
   float lmin_ = logf(60.0f < 0.0000001f ? 0.0000001f : 60.0f);
   float lmax_ = logf(15000.0f);
-  static const int NumberOfVoices = 10;
+  static const int NumberOfVoices = 8;
   Voice voices[NumberOfVoices];
   daisysp::Oscillator mLFO;
   Voice *findFreeVoice();
@@ -24,16 +25,20 @@ public:
     for (int i = 0; i < NumberOfVoices; i++) {
       Voice &voice = voices[i];
       voice.mOscOne.Init(sampleRate);
-      voice.mOscOne.SetWaveform(voice.mOscOne.WAVE_SAW);
-      voice.mOscOne.SetAmp(1.0f);
+      voice.mOscOne.SetWaveform(voice.mOscOne.WAVE_POLYBLEP_SAW);
+      voice.mOscOne.SetAmp(.5f);
 
       voice.mOscTwo.Init(sampleRate);
-      voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_SAW);
-      voice.mOscTwo.SetAmp(1.0f);
+      voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_POLYBLEP_SAW);
+      voice.mOscTwo.SetAmp(.5f);
     }
     mLFO.Init(sampleRate);
     mLFO.SetWaveform(mLFO.WAVE_TRI);
     mLFO.SetAmp(0.9f);
+
+    for (int x = 0; x < 127; ++x) {
+      midi[x] = daisysp::mtof(x);
+    }
   }
   // inline void setLFOMode(POscillator::POscillatorMode mode) {
   //   mLFO.setMode(mode);

@@ -3,10 +3,9 @@
 float Voice::nextSample() {
   if (!isActive)
     return 0.0;
-  float oscillatorOneOutput = mOscOne.Process();
+  float oscillatorOneOutput = mOscOne.Process() + noise.Process();
   float oscillatorTwoOutput = mOscTwo.Process();
-  float oscillatorSum =
-      ((1 - mOscMix) * oscillatorOneOutput) + (mOscMix * oscillatorTwoOutput);
+  float oscillatorSum = oscillatorOneOutput + oscillatorTwoOutput;
 
   float volumeEnvelopeValue = mVolumeEnvelope.nextSample();
 
@@ -21,5 +20,5 @@ void Voice::reset() {
   mOscTwo.Reset();
   mVolumeEnvelope.reset();
   mFilterEnvelope.reset();
-  // mFilter.Init(48000.0f);
+  mFilter.Init(48000.0f);
 }

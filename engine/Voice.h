@@ -15,6 +15,7 @@ public:
         mLFOValue(0.0), isActive(false) {
     mVolumeEnvelope.finishedEnvelopeCycle.Connect(this, &Voice::setFree);
     mFilter.Init(48000.0f);
+    noise.Init(48000.0f);
   };
 
   inline void setFilterEnvelopeAmount(float amount) {
@@ -29,22 +30,22 @@ public:
   }
   inline void setOscMix(float amount) { mOscMix = amount; }
   inline void setLFOValue(float value) { mLFOValue = value; }
-  inline void setNoteNumber(int noteNumber) {
+  inline void setNoteNumber(int noteNumber, float note) {
     mNoteNumber = noteNumber;
-    float frequency = daisysp::mtof(noteNumber);
-    mOscOne.SetFreq(frequency);
-    mOscTwo.SetFreq(frequency - 0.7f);
+    mOscOne.SetFreq(note);
+    mOscTwo.SetFreq(note - 0.7f);
   }
   float nextSample();
   void setFree();
   void reset();
 
 private:
-  daisysp::BlOsc mOscOne;
-  daisysp::BlOsc mOscTwo;
+  daisysp::Oscillator mOscOne;
+  daisysp::Oscillator mOscTwo;
+  daisysp::MoogLadder mFilter;
+  daisysp::Jitter noise;
   EnvelopeGenerator mVolumeEnvelope;
   EnvelopeGenerator mFilterEnvelope;
-  daisysp::MoogLadder mFilter;
   int mNoteNumber;
   int mVelocity;
   float mFilterEnvelopeAmount;

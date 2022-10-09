@@ -33,16 +33,16 @@ static void AudioCallback(AudioHandle::InputBuffer in,
   voiceManager.setFilterResonance(ui.GetRes());
 
   for (size_t i = 0; i < size; i++) {
-    if (tick.Process()) {
-      if (inc % 2 == 0) {
-        voiceManager.onNoteOn(melody[counter % 8], 80);
-      } else {
-        voiceManager.onNoteOff(melody[counter % 8], 80);
-        counter++;
-      }
+    // if (tick.Process()) {
+    //   if (inc % 2 == 0) {
+    //     voiceManager.onNoteOn(melody[counter % 8], 80);
+    //   } else {
+    //     voiceManager.onNoteOff(melody[counter % 8], 80);
+    //     counter++;
+    //   }
 
-      inc++;
-    }
+    //   inc++;
+    // }
 
     voiceManager.Process(&out[0][i], &out[1][i]);
   }
@@ -77,7 +77,7 @@ int main(void) {
   tim_config.periph = TimerHandle::Config::Peripheral::TIM_5;
   tim_config.enable_irq = true;
 
-  auto tim_target_freq = 64;
+  auto tim_target_freq = 48;
   auto time_base_req = System::GetPClk2Freq();
   tim_config.period = time_base_req / tim_target_freq;
   tim5.Init(tim_config);

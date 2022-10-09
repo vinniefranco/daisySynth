@@ -1,5 +1,6 @@
 #include "VoiceManager.h"
 
+#include "arm_math.h"
 #include "sys/system.h"
 
 Voice *VoiceManager::findFreeVoice() {
@@ -32,7 +33,7 @@ void VoiceManager::onNoteOn(int noteNumber, int velocity) {
     return;
   }
   voice->reset();
-  voice->setNoteNumber(noteNumber);
+  voice->setNoteNumber(noteNumber, midi[noteNumber]);
   voice->mVelocity = velocity;
   voice->isActive = true;
   voice->mVolumeEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
@@ -77,7 +78,7 @@ float VoiceManager::nextSample() {
       output += voice.nextSample();
     }
   }
-  return output;
+  return output / NumberOfVoices;
 }
 
 void VoiceManager::Process(float *left, float *right) {
@@ -89,5 +90,5 @@ void VoiceManager::Process(float *left, float *right) {
   if (output < -1.0f)
     output = -1.0f;
 
-  *left = *right = nextSample();
+  *left = *right = output;
 }
