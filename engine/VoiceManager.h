@@ -12,7 +12,7 @@ private:
   static const int NumberOfVoices = 8;
   Voice voices[NumberOfVoices];
   WaveOsc mLFO;
-  Voice *findFreeVoice();
+  Voice *findFreeVoice(int noteNUmber);
 
 public:
   void onNoteOn(int noteNumber, int velocity);

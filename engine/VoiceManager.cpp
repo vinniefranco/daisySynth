@@ -3,8 +3,9 @@
 #include "arm_math.h"
 #include "sys/system.h"
 
-Voice *VoiceManager::findFreeVoice() {
+Voice *VoiceManager::findFreeVoice(int noteNumber) {
   Voice *freeVoice = NULL;
+  Voice *lastNote = NULL;
   Voice *stolenVoice = NULL;
   uint32_t oldest = 0;
 
@@ -13,22 +14,29 @@ Voice *VoiceManager::findFreeVoice() {
       freeVoice = &(voices[i]);
       freeVoice->started_at = daisy::System::GetNow();
     } else {
-      if (voices[i].started_at > oldest) {
+      if (voices[i].mNoteNumber == noteNumber) {
+        lastNote = &(voices[i]);
+      } else if (voices[i].started_at > oldest) {
         oldest = voices[i].started_at;
         stolenVoice = &(voices[i]);
       }
     }
   }
   if (freeVoice == NULL) {
-    stolenVoice->started_at = daisy::System::GetNow();
-    return stolenVoice;
+    if (lastNote == NULL) {
+      stolenVoice->started_at = daisy::System::GetNow();
+      return stolenVoice;
+    } else {
+      lastNote->started_at = daisy::System::GetNow();
+      return lastNote;
+    }
   }
 
   return freeVoice;
 }
 
 void VoiceManager::onNoteOn(int noteNumber, int velocity) {
-  Voice *voice = findFreeVoice();
+  Voice *voice = findFreeVoice(noteNumber);
   if (!voice) {
     return;
   }
