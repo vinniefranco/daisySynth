@@ -36,6 +36,8 @@ public:
 
   float GetFreq() { return y; }
 
+  float GetVol() { return x; }
+
   float GetRes() { return hw->adc.GetFloat(1) - 0.1f; }
 
   int8_t Read() { return e.Read(); }
@@ -43,11 +45,15 @@ public:
   void tick() {
     switch (Read()) {
     case 1:
-      x = x + 0.1f;
+      if (x <= 1.f) {
+        x += 0.05f;
+      }
       break;
 
     case -1:
-      x = x - 0.1f;
+      if (x >= 0.0f) {
+        x -= 0.05f;
+      }
       break;
     default:
       break;
@@ -81,7 +87,7 @@ public:
   }
 
 private:
-  float x = 0.0f;
+  float x = 0.8f;
   float y = 0.0f;
   uint16_t ticker = 0;
   TableEncoder e;
@@ -90,7 +96,6 @@ private:
   SynthOledDisplay display;
   CpuLoadMeter *load_meter;
 
-  char my_output[128];
   char pot[128];
   char strbuff2[128];
 };

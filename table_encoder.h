@@ -32,10 +32,10 @@ public:
       store |= prev_next_code;
 
       if ((store & 0xff) == 0x2b)
-        return -1;
+        return 1;
 
       if ((store & 0xff) == 0x17)
-        return 1;
+        return -1;
     }
 
     return 0;

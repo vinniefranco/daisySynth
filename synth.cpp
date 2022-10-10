@@ -24,7 +24,10 @@ uint8_t inc = 0;
 
 // MidiUartHandler midi;
 
-void Tick(void *data) { ui.tick(); }
+void Tick(void *data) {
+  ui.tick();
+  voiceManager.setVolume(ui.GetVol());
+}
 
 static void AudioCallback(AudioHandle::InputBuffer in,
                           AudioHandle::OutputBuffer out, size_t size) {

@@ -8,6 +8,7 @@ private:
   float midi[127];
   float lmin_ = logf(60.0f < 0.0000001f ? 0.0000001f : 60.0f);
   float lmax_ = logf(15000.0f);
+  float volume_;
   static const int NumberOfVoices = 8;
   Voice voices[NumberOfVoices];
   daisysp::Oscillator mLFO;
@@ -17,6 +18,7 @@ public:
   void onNoteOn(int noteNumber, int velocity);
   void onNoteOff(int noteNumber, int velocity);
   void setFilterCutoff(float cutoff);
+  inline void setVolume(float newVol) { volume_ = newVol; };
   void setFilterResonance(float resonance);
   float nextSample();
   void Process(float *left, float *right);
@@ -25,11 +27,11 @@ public:
     for (int i = 0; i < NumberOfVoices; i++) {
       Voice &voice = voices[i];
       voice.mOscOne.Init(sampleRate);
-      voice.mOscOne.SetWaveform(voice.mOscOne.WAVE_POLYBLEP_SAW);
+      voice.mOscOne.SetWaveform(voice.mOscOne.WAVE_SAW);
       voice.mOscOne.SetAmp(.5f);
 
       voice.mOscTwo.Init(sampleRate);
-      voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_POLYBLEP_SAW);
+      voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_SAW);
       voice.mOscTwo.SetAmp(.5f);
     }
     mLFO.Init(sampleRate);

@@ -78,7 +78,7 @@ float VoiceManager::nextSample() {
       output += voice.nextSample();
     }
   }
-  return output / NumberOfVoices;
+  return output / NumberOfVoices * volume_;
 }
 
 void VoiceManager::Process(float *left, float *right) {
