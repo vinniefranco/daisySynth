@@ -4,35 +4,35 @@
 #include "sys/system.h"
 
 Voice *VoiceManager::findFreeVoice(int noteNumber) {
-  Voice *freeVoice = NULL;
-  Voice *lastNote = NULL;
-  Voice *stolenVoice = NULL;
+  Voice *free_voice = NULL;
+  Voice *same_note = NULL;
+  Voice *oldest_voice = NULL;
   uint32_t oldest = 0;
 
-  for (int i = 0; i < NumberOfVoices; i++) {
-    if (!voices[i].isActive) {
-      freeVoice = &(voices[i]);
-      freeVoice->started_at = daisy::System::GetNow();
+  for (int i = 0; i < number_of_voices_; i++) {
+    if (!voices_[i].isActive) {
+      free_voice = &(voices_[i]);
+      free_voice->started_at = daisy::System::GetNow();
     } else {
-      if (voices[i].mNoteNumber == noteNumber) {
-        lastNote = &(voices[i]);
-      } else if (voices[i].started_at > oldest) {
-        oldest = voices[i].started_at;
-        stolenVoice = &(voices[i]);
+      if (voices_[i].mNoteNumber == noteNumber) {
+        same_note = &(voices_[i]);
+      } else if (voices_[i].started_at > oldest) {
+        oldest = voices_[i].started_at;
+        oldest_voice = &(voices_[i]);
       }
     }
   }
-  if (freeVoice == NULL) {
-    if (lastNote == NULL) {
-      stolenVoice->started_at = daisy::System::GetNow();
-      return stolenVoice;
+  if (free_voice == NULL) {
+    if (same_note == NULL) {
+      oldest_voice->started_at = daisy::System::GetNow();
+      return oldest_voice;
     } else {
-      lastNote->started_at = daisy::System::GetNow();
-      return lastNote;
+      same_note->started_at = daisy::System::GetNow();
+      return same_note;
     }
   }
 
-  return freeVoice;
+  return free_voice;
 }
 
 void VoiceManager::onNoteOn(int noteNumber, int velocity) {
@@ -41,7 +41,7 @@ void VoiceManager::onNoteOn(int noteNumber, int velocity) {
     return;
   }
   voice->reset();
-  voice->setNoteNumber(noteNumber, midi[noteNumber]);
+  voice->setNoteNumber(noteNumber, midi_[noteNumber]);
   voice->mVelocity = velocity;
   voice->isActive = true;
   voice->mVolumeEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
@@ -49,8 +49,8 @@ void VoiceManager::onNoteOn(int noteNumber, int velocity) {
 }
 void VoiceManager::onNoteOff(int noteNumber, int velocity) {
   // Find the voice with given note number
-  for (int i = 0; i < NumberOfVoices; i++) {
-    Voice &voice = voices[i];
+  for (int i = 0; i < number_of_voices_; i++) {
+    Voice &voice = voices_[i];
 
     if (voice.isActive && voice.mNoteNumber == noteNumber) {
       voice.mVolumeEnvelope.enterStage(
@@ -62,31 +62,31 @@ void VoiceManager::onNoteOff(int noteNumber, int velocity) {
 }
 
 void VoiceManager::setFilterCutoff(float cutoff) {
-  float newCutoff = expf(cutoff * (lmax_ - lmin_) + lmin_);
-  for (int i = 0; i < NumberOfVoices; i++) {
-    Voice &voice = voices[i];
-    voice.mFilter.SetFreq(newCutoff);
+  float new_cutoff = expf(cutoff * (lmax_ - lmin_) + lmin_);
+  for (int i = 0; i < number_of_voices_; i++) {
+    Voice &voice = voices_[i];
+    voice.mFilter.SetFreq(new_cutoff);
   }
 }
 
 void VoiceManager::setFilterResonance(float cutoff) {
-  for (int i = 0; i < NumberOfVoices; i++) {
-    Voice &voice = voices[i];
+  for (int i = 0; i < number_of_voices_; i++) {
+    Voice &voice = voices_[i];
     voice.mFilter.SetRes(cutoff);
   }
 }
 
 float VoiceManager::nextSample() {
   float output = 0.0;
-  float lfoValue = mLFO.Process();
-  for (int i = 0; i < NumberOfVoices; i++) {
-    Voice &voice = voices[i];
+  float lfo_value = lfo_.Process();
+  for (int i = 0; i < number_of_voices_; i++) {
+    Voice &voice = voices_[i];
     if (voice.isActive) {
-      voice.setLFOValue(lfoValue);
+      voice.setLFOValue(lfo_value);
       output += voice.nextSample();
     }
   }
-  return output / NumberOfVoices * volume_;
+  return output / number_of_voices_ * volume_;
 }
 
 void VoiceManager::Process(float *left, float *right) {

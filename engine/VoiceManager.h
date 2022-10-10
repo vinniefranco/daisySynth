@@ -5,47 +5,47 @@
 
 class VoiceManager {
 private:
-  float midi[127];
+  float midi_[127];
   float lmin_ = logf(60.0f < 0.0000001f ? 0.0000001f : 60.0f);
   float lmax_ = logf(15000.0f);
   float volume_;
-  static const int NumberOfVoices = 8;
-  Voice voices[NumberOfVoices];
-  WaveOsc mLFO;
+  static const int number_of_voices_ = 8;
+  Voice voices_[number_of_voices_];
+  WaveOsc lfo_;
   Voice *findFreeVoice(int noteNUmber);
 
 public:
-  void onNoteOn(int noteNumber, int velocity);
-  void onNoteOff(int noteNumber, int velocity);
+  void onNoteOn(int note_number, int velocity);
+  void onNoteOff(int note_number, int velocity);
   void setFilterCutoff(float cutoff);
-  inline void setVolume(float newVol) { volume_ = newVol; };
+  inline void setVolume(float new_vol) { volume_ = new_vol; };
   void setFilterResonance(float resonance);
   float nextSample();
   void Process(float *left, float *right);
-  void setSampleRate(float sampleRate) {
-    EnvelopeGenerator::setSampleRate(sampleRate);
-    for (int i = 0; i < NumberOfVoices; i++) {
-      Voice &voice = voices[i];
-      voice.mOscOne.Init(sampleRate);
+  void setSampleRate(float sample_rate) {
+    EnvelopeGenerator::setSampleRate(sample_rate);
+    for (int i = 0; i < number_of_voices_; i++) {
+      Voice &voice = voices_[i];
+      voice.mOscOne.Init(sample_rate);
       voice.mOscOne.SetWaveform(voice.mOscOne.WAVE_SAW);
       voice.mOscOne.SetAmp(.5f);
 
-      voice.mOscTwo.Init(sampleRate);
+      voice.mOscTwo.Init(sample_rate);
       voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_SAW);
       voice.mOscTwo.SetAmp(.5f);
     }
-    mLFO.Init(sampleRate);
-    mLFO.SetWaveform(mLFO.WAVE_SIN);
-    mLFO.SetAmp(0.9f);
+    lfo_.Init(sample_rate);
+    lfo_.SetWaveform(lfo_.WAVE_SIN);
+    lfo_.SetAmp(0.9f);
 
     for (int x = 0; x < 127; ++x) {
-      midi[x] = daisysp::mtof(x);
+      midi_[x] = daisysp::mtof(x);
     }
   }
   // inline void setLFOMode(POscillator::POscillatorMode mode) {
   //   mLFO.setMode(mode);
   // };
-  inline void setLFOFrequency(float frequency) { mLFO.SetFreq(frequency); };
+  inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
   // Functions to change a single voice
   static void setVolumeEnvelopeStageValue(
       Voice &voice, EnvelopeGenerator::EnvelopeStage stage, float value) {
