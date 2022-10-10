@@ -71,6 +71,13 @@ public:
     }
   }
 
+  inline void setDetune(float value) {
+    for (int i = 0; i < number_of_voices_; i++) {
+      Voice &voice = voices_[i];
+      voice.setDetune(value);
+    }
+  }
+
   inline void setFilterEnvAmount(float amount) {
     for (int i = 0; i < number_of_voices_; i++) {
       Voice &voice = voices_[i];

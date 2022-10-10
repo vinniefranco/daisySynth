@@ -105,7 +105,7 @@ int main(void) {
         }
 
         case 102: {
-          voiceManager.setFilterEnvAmount((float)cc.value / 127.f);
+          voiceManager.setDetune((float)cc.value / 127.f);
           break;
         }
 

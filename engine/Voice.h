@@ -17,6 +17,7 @@ private:
   EnvelopeGenerator mFilterEnvelope;
   int note_number;
   int mVelocity;
+  float detune = 0.0f;
   float mFilterEnvelopeAmount;
   float mOscMix;
   float mFilterLFOAmount;
@@ -61,11 +62,12 @@ public:
     mOscTwoPitchAmount = amount;
   }
   inline void setOscMix(float amount) { mOscMix = amount; }
+  inline void setDetune(float new_detune) { detune = new_detune; }
   inline void setLFOValue(float value) { mLFOValue = value; }
   inline void setNoteNumber(int midi_note, float freq) {
     note_number = midi_note;
-    osc0.SetFreq(freq);
-    osc1.SetFreq(freq - 0.7f);
+    osc0.SetFreq(freq - detune);
+    osc1.SetFreq(freq + detune);
   }
   float nextSample();
   void setFree();
