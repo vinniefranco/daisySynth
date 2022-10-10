@@ -5,7 +5,7 @@
 
 #include "WaveOsc.h"
 
-#include <arm_math.h>
+#include <math.h>
 
 class Voice {
 public:

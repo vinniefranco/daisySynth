@@ -1,7 +1,7 @@
 #pragma once
 
 #include "table_encoder.h"
-#include <arm_math.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
