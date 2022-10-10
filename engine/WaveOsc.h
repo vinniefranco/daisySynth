@@ -8,7 +8,7 @@ public:
   WaveOsc(){};
   ~WaveOsc(){};
 
-  enum { WAVE_SIN, WAVE_SAW };
+  enum { WAVE_SIN, WAVE_SAW, WAVE_SQUARE };
 
   void Init(float new_sample_rate) {
     sample_rate_ = new_sample_rate;
@@ -26,7 +26,11 @@ public:
         wt_[i] = (float)(i / (float)WT_SAMPS * 2.f) - 1.0f;
       }
       break;
-
+    case WAVE_SQUARE:
+      for (uint16_t i = 0; i < WT_SAMPS; ++i) {
+        wt_[i] = (i < WT_SAMPS / 2) ? -1.f : 1.f;
+      }
+      break;
     case WAVE_SIN:
       auto angle_delta = TWOPI_F / (float)(WT_SAMPS - 1);
       auto current_angle = 0.0f;
