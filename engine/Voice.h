@@ -12,7 +12,7 @@ private:
   WaveOsc osc0;
   WaveOsc osc1;
   daisysp::MoogLadder flt;
-  daisysp::Jitter noise;
+  daisysp::WhiteNoise noise;
   EnvelopeGenerator mVolumeEnvelope;
   EnvelopeGenerator mFilterEnvelope;
   int note_number;
@@ -46,7 +46,8 @@ public:
     osc1.SetAmp(osc_amp);
 
     flt.Init(new_sample_rate);
-    noise.Init(new_sample_rate);
+    noise.Init();
+    noise.SetAmp(0.01f);
   }
 
   inline void setFilterEnvelopeAmount(float amount) {

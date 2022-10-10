@@ -4,18 +4,42 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <unordered_map>
 
-#include "daisy_core.h"
 #include "daisy_seed.h"
 #include "daisysp.h"
 #include "dev/oled_ssd130x.h"
 #include "per/gpio.h"
+
+class SynthParam {
+public:
+  SynthParam(int);
+  ~SynthParam();
+};
 
 namespace daisy {
 
 using SynthOledDisplay = OledDisplay<SSD130x4WireSpi128x64Driver>;
 
 class SynthUI {
+private:
+  float last_cutoff_read = 0.0f;
+  float last_res_read = 0.0f;
+  float x = 0.8f;
+  float cutoff = 0.0f;
+  float res = 0.0f;
+  uint16_t ticker = 0;
+  TableEncoder e;
+  DaisySeed *hw;
+  SynthOledDisplay::Config disp_cfg;
+  SynthOledDisplay display;
+  CpuLoadMeter *load_meter;
+
+  char pot[128];
+  char strbuff2[128];
+
+  float midiToFloat(int midi_value) { return (float)midi_value / 127.f; }
+
 public:
   SynthUI() {}
   ~SynthUI() {}
@@ -34,9 +58,9 @@ public:
     System::Delay(1000);
   }
 
-  inline void SetCutoff(int midi_value) { cutoff = (float)midi_value / 127.f; }
+  inline void SetCutoff(int midi_value) { cutoff = midiToFloat(midi_value); }
 
-  inline void SetRes(int midi_value) { res = (float)midi_value / 127.f; }
+  inline void SetRes(int midi_value) { res = midiToFloat(midi_value) - 0.1f; }
 
   inline float GetCutoff() { return cutoff; }
 
@@ -64,13 +88,12 @@ public:
     }
 
     float cut_reading = hw->adc.GetFloat(0);
-
     if (abs(cut_reading - last_cutoff_read) > 0.01f) {
       cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
     }
 
     float res_reading = hw->adc.GetFloat(1) - 0.01f;
-    if (abs(res_reading - last_res_read) > 0.0f) {
+    if (abs(res_reading - last_res_read) > 0.01f) {
       res = 0.9f * (res_reading - res) + res;
     }
 
@@ -99,22 +122,6 @@ public:
 
     last_cutoff_read = cut_reading;
   }
-
-private:
-  float last_cutoff_read = 0.0f;
-  float last_res_read = 0.0f;
-  float x = 0.8f;
-  float cutoff = 0.0f;
-  float res = 0.0f;
-  uint16_t ticker = 0;
-  TableEncoder e;
-  DaisySeed *hw;
-  SynthOledDisplay::Config disp_cfg;
-  SynthOledDisplay display;
-  CpuLoadMeter *load_meter;
-
-  char pot[128];
-  char strbuff2[128];
 };
 
 } // namespace daisy

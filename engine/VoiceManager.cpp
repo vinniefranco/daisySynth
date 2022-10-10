@@ -100,5 +100,5 @@ void VoiceManager::Process(float *left, float *right) {
   float fir = del_.Read();
   del_.Write(output);
 
-  *left = *right = output + fir / 0.5f;
+  *left = *right = (output * .7f) + (fir * 0.3f);
 }

@@ -1,5 +1,6 @@
 #ifndef __VOICEMANAGER__
 #define __VOICEMANAGER__
+#include "Noise/whitenoise.h"
 #pragma once
 #include "Utility/delayline.h"
 #include "sys/system.h"
@@ -9,15 +10,15 @@
 class VoiceManager {
 private:
   daisysp::Compressor comp_;
-  float avg_loudness_ = 1.0f;
   float midi_[127];
   float lmin_ = logf(60.0f < 0.0000001f ? 0.0000001f : 60.0f);
   float lmax_ = logf(15000.0f);
   float volume_;
-  daisysp::DelayLine<float, 2> del_;
+  daisysp::DelayLine<float, 32> del_;
   static const int number_of_voices_ = 8;
   Voice voices_[number_of_voices_];
-  WaveOsc lfo_;
+  daisysp::Oscillator lfo_;
+
   Voice *findFreeVoice(int noteNUmber);
 
 public:
@@ -36,7 +37,7 @@ public:
     }
     comp_.Init(sample_rate);
     comp_.AutoMakeup(false);
-    comp_.SetMakeup(9.0f);
+    comp_.SetMakeup(10.0f);
     del_.Init();
     size_t delay = 2;
     del_.SetDelay(delay);
@@ -49,47 +50,32 @@ public:
       midi_[x] = daisysp::mtof(x);
     }
   }
-  // inline void setLFOMode(POscillator::POscillatorMode mode) {
-  //   mLFO.setMode(mode);
-  // };
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
-  // Functions to change a single voice
-  static void setVolumeEnvelopeStageValue(
-      Voice &voice, EnvelopeGenerator::EnvelopeStage stage, float value) {
-    voice.mVolumeEnvelope.setStageValue(stage, value);
-  }
-  static void setFilterEnvelopeStageValue(
-      Voice &voice, EnvelopeGenerator::EnvelopeStage stage, float value) {
-    voice.mFilterEnvelope.setStageValue(stage, value);
-  }
-  // static void setOscillatorMode(Voice &voice, int oscillatorNumber,
-  //                               POscillator::POscillatorMode mode) {
-  //   switch (oscillatorNumber) {
-  //   case 1:
-  //     voice.mOscOne.setMode(mode);
-  //     break;
-  //   case 2:
-  //     voice.mOscTwo.setMode(mode);
-  //     break;
-  //   }
-  // }
-  // static void setOscillatorPitchMod(Voice &voice, int oscillatorNumber,
-  //                                   float amount) {
-  //   switch (oscillatorNumber) {
-  //   case 1:
-  //     voice.setOscOnePitchAmount(amount);
-  //     break;
-  //   case 2:
-  //     voice.setOscTwoPitchAmount(amount);
-  //     break;
-  //   }
-  // }
-  static void setOscillatorMix(Voice &voice, float value) {
-    voice.setOscMix(value);
+
+  inline void
+  setVolumeEnvelopeStageValue(EnvelopeGenerator::EnvelopeStage stage,
+                              float value) {
+
+    for (int i = 0; i < number_of_voices_; i++) {
+      Voice &voice = voices_[i];
+      voice.mVolumeEnvelope.setStageValue(stage, value);
+    }
   }
 
-  static void setFilterEnvAmount(Voice &voice, float amount) {
-    voice.setFilterEnvelopeAmount(amount);
+  inline void
+  setFilterEnvelopeStageValue(EnvelopeGenerator::EnvelopeStage stage,
+                              float value) {
+    for (int i = 0; i < number_of_voices_; i++) {
+      Voice &voice = voices_[i];
+      voice.mFilterEnvelope.setStageValue(stage, value);
+    }
+  }
+
+  inline void setFilterEnvAmount(float amount) {
+    for (int i = 0; i < number_of_voices_; i++) {
+      Voice &voice = voices_[i];
+      voice.setFilterEnvelopeAmount(amount);
+    }
   }
   static void setFilterLFOAmount(Voice &voice, float amount) {
     voice.setFilterLFOAmount(amount);

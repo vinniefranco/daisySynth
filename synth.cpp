@@ -93,12 +93,59 @@ int main(void) {
       case ControlChange: {
         auto cc = msg.AsControlChange();
         switch (cc.control_number) {
+
         case 100: {
           ui.SetCutoff(cc.value);
           break;
         }
+
         case 101: {
           ui.SetRes(cc.value);
+          break;
+        }
+
+        case 102: {
+          voiceManager.setFilterEnvAmount((float)cc.value / 127.f);
+          break;
+        }
+
+        case 103: {
+          voiceManager.setVolumeEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
+              (float)cc.value / 127.f);
+          break;
+        }
+
+        case 104: {
+          voiceManager.setVolumeEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_DECAY, (float)cc.value / 127.f);
+          break;
+        }
+
+        case 105: {
+          voiceManager.setVolumeEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
+              (float)cc.value / 127.f);
+          break;
+        }
+
+        case 106: {
+          voiceManager.setFilterEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
+              (float)cc.value / 127.f);
+          break;
+        }
+
+        case 107: {
+          voiceManager.setFilterEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_DECAY, (float)cc.value / 127.f);
+          break;
+        }
+
+        case 108: {
+          voiceManager.setFilterEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
+              (float)cc.value / 127.f);
           break;
         }
         }
