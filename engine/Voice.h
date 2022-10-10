@@ -1,11 +1,11 @@
 #pragma once
 
 #include "EnvelopeGenerator.h"
-#include <arm_math.h>
+#include "daisysp.h"
 
 #include "WaveOsc.h"
 
-#include "daisysp.h"
+#include <arm_math.h>
 
 class Voice {
 public:
