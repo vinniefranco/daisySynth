@@ -34,11 +34,15 @@ public:
     System::Delay(1000);
   }
 
-  float GetFreq() { return y; }
+  inline void SetCutoff(int midi_value) { cutoff = (float)midi_value / 127.f; }
 
-  float GetVol() { return x; }
+  inline void SetRes(int midi_value) { res = (float)midi_value / 127.f; }
 
-  float GetRes() { return hw->adc.GetFloat(1) - 0.1f; }
+  inline float GetCutoff() { return cutoff; }
+
+  inline float GetVol() { return x; }
+
+  inline float GetRes() { return res; }
 
   int8_t Read() { return e.Read(); }
 
@@ -59,8 +63,16 @@ public:
       break;
     }
 
-    float input = hw->adc.GetFloat(0);
-    y = 0.9f * (input - y) + y;
+    float cut_reading = hw->adc.GetFloat(0);
+
+    if (abs(cut_reading - last_cutoff_read) > 0.01f) {
+      cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
+    }
+
+    float res_reading = hw->adc.GetFloat(1) - 0.01f;
+    if (abs(res_reading - last_res_read) > 0.0f) {
+      res = 0.9f * (res_reading - res) + res;
+    }
 
     if (ticker % 100 == 0) {
       const float avg_load = load_meter->GetAvgCpuLoad();
@@ -71,11 +83,11 @@ public:
       display.SetCursor(0, 0);
       display.WriteString(strbuff2, Font_6x8, true);
 
-      float value = GetFreq();
+      float value = GetCutoff();
 
       uint_fast8_t position = value * 120.0f;
 
-      sprintf(pot, "x:" FLT_FMT3, FLT_VAR3(x));
+      sprintf(pot, "x:" FLT_FMT3, FLT_VAR3(cutoff));
       display.SetCursor(0, 52);
       display.WriteString(pot, Font_6x8, true);
 
@@ -84,11 +96,16 @@ public:
 
       display.Update();
     }
+
+    last_cutoff_read = cut_reading;
   }
 
 private:
+  float last_cutoff_read = 0.0f;
+  float last_res_read = 0.0f;
   float x = 0.8f;
-  float y = 0.0f;
+  float cutoff = 0.0f;
+  float res = 0.0f;
   uint16_t ticker = 0;
   TableEncoder e;
   DaisySeed *hw;

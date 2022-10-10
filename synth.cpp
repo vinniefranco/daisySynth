@@ -23,7 +23,7 @@ void Tick(void *data) {
 static void AudioCallback(AudioHandle::InputBuffer in,
                           AudioHandle::OutputBuffer out, size_t size) {
   load_meter.OnBlockStart();
-  voiceManager.setFilterCutoff(ui.GetFreq());
+  voiceManager.setFilterCutoff(ui.GetCutoff());
   voiceManager.setFilterResonance(ui.GetRes());
 
   for (size_t i = 0; i < size; i++) {
@@ -90,6 +90,20 @@ int main(void) {
       auto msg = midi.PopEvent();
 
       switch (msg.type) {
+      case ControlChange: {
+        auto cc = msg.AsControlChange();
+        switch (cc.control_number) {
+        case 100: {
+          ui.SetCutoff(cc.value);
+          break;
+        }
+        case 101: {
+          ui.SetRes(cc.value);
+          break;
+        }
+        }
+        break;
+      }
       case NoteOn: {
         auto note_msg = msg.AsNoteOn();
 

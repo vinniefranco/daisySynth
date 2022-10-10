@@ -8,6 +8,8 @@
 
 class VoiceManager {
 private:
+  daisysp::Compressor comp_;
+  float avg_loudness_ = 1.0f;
   float midi_[127];
   float lmin_ = logf(60.0f < 0.0000001f ? 0.0000001f : 60.0f);
   float lmax_ = logf(15000.0f);
@@ -32,6 +34,9 @@ public:
       Voice &voice = voices_[i];
       voice.Init(sample_rate, WaveOsc::WAVE_SAW, 0.5f);
     }
+    comp_.Init(sample_rate);
+    comp_.AutoMakeup(false);
+    comp_.SetMakeup(9.0f);
     del_.Init();
     size_t delay = 2;
     del_.SetDelay(delay);

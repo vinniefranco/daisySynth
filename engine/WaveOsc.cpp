@@ -3,9 +3,9 @@
 float WaveOsc::Process() {
   auto i0 = (unsigned int)current_index_;
   auto i1 = i0 + 1;
-  auto frac = current_index_ - (float)i0;
   auto v0 = wt_[i0];
   auto v1 = wt_[i1];
+  auto frac = current_index_ - (float)i0;
 
   // linear interpolation for now.
   float current_sample = v0 + frac * (v1 - v0);
