@@ -1,6 +1,9 @@
 #ifndef __VOICEMANAGER__
 #define __VOICEMANAGER__
 #pragma once
+#include "Utility/delayline.h"
+#include "sys/system.h"
+
 #include "Voice.h"
 
 class VoiceManager {
@@ -9,6 +12,7 @@ private:
   float lmin_ = logf(60.0f < 0.0000001f ? 0.0000001f : 60.0f);
   float lmax_ = logf(15000.0f);
   float volume_;
+  daisysp::DelayLine<float, 2> del_;
   static const int number_of_voices_ = 8;
   Voice voices_[number_of_voices_];
   WaveOsc lfo_;
@@ -28,6 +32,10 @@ public:
       Voice &voice = voices_[i];
       voice.Init(sample_rate, WaveOsc::WAVE_SAW, 0.5f);
     }
+    del_.Init();
+    size_t delay = 2;
+    del_.SetDelay(delay);
+    del_.Write(0.0f);
     lfo_.Init(sample_rate);
     lfo_.SetWaveform(lfo_.WAVE_SIN);
     lfo_.SetAmp(0.9f);

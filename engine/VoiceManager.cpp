@@ -1,8 +1,5 @@
 #include "VoiceManager.h"
 
-#include "arm_math.h"
-#include "sys/system.h"
-
 Voice *VoiceManager::findFreeVoice(int midi_note) {
   Voice *free_voice = NULL;
   Voice *same_note = NULL;
@@ -98,5 +95,8 @@ void VoiceManager::Process(float *left, float *right) {
   if (output < -1.0f)
     output = -1.0f;
 
-  *left = *right = output;
+  float fir = del_.Read();
+  del_.Write(output);
+
+  *left = *right = output + fir / 0.5f;
 }

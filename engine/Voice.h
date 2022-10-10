@@ -8,6 +8,23 @@
 #include <math.h>
 
 class Voice {
+private:
+  WaveOsc osc0;
+  WaveOsc osc1;
+  daisysp::MoogLadder flt;
+  daisysp::Jitter noise;
+  EnvelopeGenerator mVolumeEnvelope;
+  EnvelopeGenerator mFilterEnvelope;
+  int note_number;
+  int mVelocity;
+  float mFilterEnvelopeAmount;
+  float mOscMix;
+  float mFilterLFOAmount;
+  float mOscOnePitchAmount;
+  float mOscTwoPitchAmount;
+  float mLFOValue;
+  bool isActive;
+
 public:
   friend class VoiceManager;
   uint32_t started_at;
@@ -52,21 +69,4 @@ public:
   float nextSample();
   void setFree();
   void reset();
-
-private:
-  WaveOsc osc0;
-  WaveOsc osc1;
-  daisysp::MoogLadder flt;
-  daisysp::Jitter noise;
-  EnvelopeGenerator mVolumeEnvelope;
-  EnvelopeGenerator mFilterEnvelope;
-  int note_number;
-  int mVelocity;
-  float mFilterEnvelopeAmount;
-  float mOscMix;
-  float mFilterLFOAmount;
-  float mOscOnePitchAmount;
-  float mOscTwoPitchAmount;
-  float mLFOValue;
-  bool isActive;
 };

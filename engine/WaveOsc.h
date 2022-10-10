@@ -1,9 +1,21 @@
 #include "Utility/dsp.h"
-#include "daisy_seed.h"
 
+// 2048 Seems to be the standard WT size these days
 constexpr uint16_t WT_SIZE = 2048;
 
 class WaveOsc {
+private:
+  uint8_t waveform_;
+
+  // This might need to move to a wt slots concept in SDRAM.
+  float wt_[WT_SIZE];
+
+  float amp_;
+  float current_index_ = 0.0f;
+  float sample_rate_;
+  float table_delta_ = 0.0f;
+  float table_size_over_sample_rate_;
+
 public:
   enum { WAVE_SAW, WAVE_SIN, WAVE_SQUARE };
 
@@ -55,16 +67,4 @@ public:
     }
     }
   }
-
-private:
-  uint8_t waveform_;
-
-  // This might need to move to a wt slots concept in SDRAM.
-  float wt_[WT_SIZE];
-
-  float amp_;
-  float current_index_ = 0.0f;
-  float sample_rate_;
-  float table_delta_ = 0.0f;
-  float table_size_over_sample_rate_;
 };
