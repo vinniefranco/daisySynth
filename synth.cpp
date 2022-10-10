@@ -12,15 +12,6 @@ MidiUsbHandler midi;
 CpuLoadMeter load_meter;
 static VoiceManager voiceManager;
 static SynthUI ui;
-static Metro tick;
-
-std::queue<int> g;
-
-int melody[8] = {48 - 12, 52 - 12, 55 - 12, 59 - 12,
-                 60 - 12, 59 - 12, 55 - 12, 52 - 12};
-
-uint8_t counter = 0;
-uint8_t inc = 0;
 
 // MidiUartHandler midi;
 
@@ -36,17 +27,6 @@ static void AudioCallback(AudioHandle::InputBuffer in,
   voiceManager.setFilterResonance(ui.GetRes());
 
   for (size_t i = 0; i < size; i++) {
-    // if (tick.Process()) {
-    //   if (inc % 2 == 0) {
-    //     voiceManager.onNoteOn(melody[counter % 8], 80);
-    //   } else {
-    //     voiceManager.onNoteOff(melody[counter % 8], 80);
-    //     counter++;
-    //   }
-
-    //   inc++;
-    // }
-
     voiceManager.Process(&out[0][i], &out[1][i]);
   }
   load_meter.OnBlockEnd();
@@ -85,9 +65,6 @@ int main(void) {
   tim_config.period = time_base_req / tim_target_freq;
   tim5.Init(tim_config);
   tim5.SetCallback(Tick);
-
-  // Configure
-  tick.Init(8.0f, sample_rate);
 
   // Initialize UI
   ui.Init(&hw, &load_meter, daisy::seed::D17, daisy::seed::D16,

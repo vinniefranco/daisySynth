@@ -3,7 +3,7 @@
 #include "arm_math.h"
 #include "sys/system.h"
 
-Voice *VoiceManager::findFreeVoice(int noteNumber) {
+Voice *VoiceManager::findFreeVoice(int midi_note) {
   Voice *free_voice = NULL;
   Voice *same_note = NULL;
   Voice *oldest_voice = NULL;
@@ -14,7 +14,7 @@ Voice *VoiceManager::findFreeVoice(int noteNumber) {
       free_voice = &(voices_[i]);
       free_voice->started_at = daisy::System::GetNow();
     } else {
-      if (voices_[i].mNoteNumber == noteNumber) {
+      if (voices_[i].note_number == midi_note) {
         same_note = &(voices_[i]);
       } else if (voices_[i].started_at > oldest) {
         oldest = voices_[i].started_at;
@@ -35,24 +35,24 @@ Voice *VoiceManager::findFreeVoice(int noteNumber) {
   return free_voice;
 }
 
-void VoiceManager::onNoteOn(int noteNumber, int velocity) {
-  Voice *voice = findFreeVoice(noteNumber);
+void VoiceManager::onNoteOn(int midi_note, int velocity) {
+  Voice *voice = findFreeVoice(midi_note);
   if (!voice) {
     return;
   }
   voice->reset();
-  voice->setNoteNumber(noteNumber, midi_[noteNumber]);
+  voice->setNoteNumber(midi_note, midi_[midi_note]);
   voice->mVelocity = velocity;
   voice->isActive = true;
   voice->mVolumeEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
   voice->mFilterEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
 }
-void VoiceManager::onNoteOff(int noteNumber, int velocity) {
+void VoiceManager::onNoteOff(int midi_note, int velocity) {
   // Find the voice with given note number
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
 
-    if (voice.isActive && voice.mNoteNumber == noteNumber) {
+    if (voice.isActive && voice.note_number == midi_note) {
       voice.mVolumeEnvelope.enterStage(
           EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
       voice.mFilterEnvelope.enterStage(
@@ -65,14 +65,14 @@ void VoiceManager::setFilterCutoff(float cutoff) {
   float new_cutoff = expf(cutoff * (lmax_ - lmin_) + lmin_);
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
-    voice.mFilter.SetFreq(new_cutoff);
+    voice.flt.SetFreq(new_cutoff);
   }
 }
 
 void VoiceManager::setFilterResonance(float cutoff) {
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
-    voice.mFilter.SetRes(cutoff);
+    voice.flt.SetRes(cutoff);
   }
 }
 

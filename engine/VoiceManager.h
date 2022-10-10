@@ -26,13 +26,7 @@ public:
     EnvelopeGenerator::setSampleRate(sample_rate);
     for (int i = 0; i < number_of_voices_; i++) {
       Voice &voice = voices_[i];
-      voice.mOscOne.Init(sample_rate);
-      voice.mOscOne.SetWaveform(voice.mOscOne.WAVE_SAW);
-      voice.mOscOne.SetAmp(.5f);
-
-      voice.mOscTwo.Init(sample_rate);
-      voice.mOscTwo.SetWaveform(voice.mOscTwo.WAVE_SAW);
-      voice.mOscTwo.SetAmp(.5f);
+      voice.Init(sample_rate, WaveOsc::WAVE_SAW, 0.5f);
     }
     lfo_.Init(sample_rate);
     lfo_.SetWaveform(lfo_.WAVE_SIN);
