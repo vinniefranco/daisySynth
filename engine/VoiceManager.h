@@ -11,7 +11,7 @@ private:
   float volume_;
   static const int NumberOfVoices = 8;
   Voice voices[NumberOfVoices];
-  daisysp::Oscillator mLFO;
+  WaveOsc mLFO;
   Voice *findFreeVoice();
 
 public:
@@ -35,7 +35,7 @@ public:
       voice.mOscTwo.SetAmp(.5f);
     }
     mLFO.Init(sampleRate);
-    mLFO.SetWaveform(mLFO.WAVE_TRI);
+    mLFO.SetWaveform(mLFO.WAVE_SIN);
     mLFO.SetAmp(0.9f);
 
     for (int x = 0; x < 127; ++x) {

@@ -8,6 +8,7 @@ CPP_SOURCES = synth.cpp
 CPP_SOURCES += engine/Voice.cpp 
 CPP_SOURCES += engine/VoiceManager.cpp 
 CPP_SOURCES += engine/EnvelopeGenerator.cpp 
+CPP_SOURCES += engine/WaveOsc.cpp 
 
 # Library Locations
 LIBDAISY_DIR = ../DaisyExamples/libDaisy/

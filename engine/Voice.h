@@ -3,6 +3,8 @@
 #include "EnvelopeGenerator.h"
 #include <arm_math.h>
 
+#include "WaveOsc.h"
+
 #include "daisysp.h"
 
 class Voice {
@@ -40,8 +42,8 @@ public:
   void reset();
 
 private:
-  daisysp::Oscillator mOscOne;
-  daisysp::Oscillator mOscTwo;
+  WaveOsc mOscOne;
+  WaveOsc mOscTwo;
   daisysp::MoogLadder mFilter;
   daisysp::Jitter noise;
   EnvelopeGenerator mVolumeEnvelope;
