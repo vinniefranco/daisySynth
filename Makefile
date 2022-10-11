@@ -2,6 +2,7 @@
 # APP_TYPE = BOOT_SRAM
 TARGET = synth
 DEBUG = 1
+USE_ARM_DSP = 1
 
 # Sources
 CPP_SOURCES = synth.cpp 
