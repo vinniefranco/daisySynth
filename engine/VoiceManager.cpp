@@ -39,10 +39,10 @@ void VoiceManager::onNoteOn(int midi_note, int velocity) {
   }
   voice->reset();
   voice->setNoteNumber(midi_note, midi_[midi_note]);
-  voice->mVelocity = velocity;
+  voice->velocity = velocity;
   voice->isActive = true;
-  voice->mVolumeEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
-  voice->mFilterEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
+  voice->v_env.gate(true);
+  voice->f_env.gate(true);
 }
 void VoiceManager::onNoteOff(int midi_note, int velocity) {
   // Find the voice with given note number
@@ -50,26 +50,23 @@ void VoiceManager::onNoteOff(int midi_note, int velocity) {
     Voice &voice = voices_[i];
 
     if (voice.isActive && voice.note_number == midi_note) {
-      voice.mVolumeEnvelope.enterStage(
-          EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
-      voice.mFilterEnvelope.enterStage(
-          EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
+      voice.v_env.gate(false);
+      voice.f_env.gate(false);
     }
   }
 }
 
 void VoiceManager::setFilterCutoff(float cutoff) {
-  float new_cutoff = expf(cutoff * (lmax_ - lmin_) + lmin_);
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
-    voice.flt.SetFreq(new_cutoff);
+    voice.flt.setCutoff(cutoff);
   }
 }
 
-void VoiceManager::setFilterResonance(float cutoff) {
+void VoiceManager::setFilterResonance(float resonance) {
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
-    voice.flt.SetRes(cutoff);
+    voice.flt.setResonance(resonance);
   }
 }
 
@@ -97,8 +94,5 @@ void VoiceManager::Process(float *left, float *right) {
   if (output < -1.0f)
     output = -1.0f;
 
-  float fir = del_.Read();
-  del_.Write(output);
-
-  *left = *right = (output * .7f) + (fir * 0.3f);
+  *left = *right = (output);
 }

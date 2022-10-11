@@ -12,6 +12,7 @@ private:
 
   float amp_;
   float current_index_ = 0.0f;
+  float lfo_amount_ = 0.0f;
   float sample_rate_;
   float table_delta_ = 0.0f;
   float table_size_over_sample_rate_;
@@ -33,6 +34,8 @@ public:
     current_index_ = 0.0f;
     table_delta_ = 0.0f;
   }
+
+  inline void SetLFOAmount(float amount) { lfo_amount_ = amount; }
 
   inline void SetAmp(float new_amp) { amp_ = new_amp; }
 
