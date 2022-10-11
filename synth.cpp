@@ -147,7 +147,7 @@ int main(void) {
         case 93: {
           voiceManager.setVolumeEnvelopeStageValue(
               EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
-              ((float)cc.value / 127.f + 0.01f) * 6.f);
+              ((float)cc.value / 127.f + 0.01f) * 3.f);
           break;
         }
 

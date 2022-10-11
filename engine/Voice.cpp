@@ -9,22 +9,18 @@ float Voice::nextSample() {
   float oscillatorSum = oscillatorOneOutput + oscillatorTwoOutput;
 
   float volumeEnvelopeValue = v_env.nextSample();
-  del_.Write(volumeEnvelopeValue);
 
   float filterEnvelopeValue = f_env.nextSample();
 
   flt.setCutoffMod(filterEnvelopeValue * mFilterEnvelopeAmount +
                    (mLFOValue * mFilterLFOAmount));
 
-  return flt.Process(oscillatorSum * mVelocity / 127.0) * del_.Read();
+  return flt.Process(oscillatorSum * velocity / 127.0) * volumeEnvelopeValue;
 }
 void Voice::setFree() { isActive = false; }
 void Voice::reset() {
-  del_.Write(0.0f);
-  del_.Write(0.0f);
-
   note_number = -1;
-  mVelocity = 0;
+  velocity = 0;
   osc0_.Reset();
   osc1_.Reset();
   v_env.reset();

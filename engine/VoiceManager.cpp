@@ -39,7 +39,7 @@ void VoiceManager::onNoteOn(int midi_note, int velocity) {
   }
   voice->reset();
   voice->setNoteNumber(midi_note, midi_[midi_note]);
-  voice->mVelocity = velocity;
+  voice->velocity = velocity;
   voice->isActive = true;
   voice->v_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
   voice->f_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
