@@ -2,7 +2,7 @@
 #define __EnvelopeGenerator__
 #pragma once
 #include "GallantSignal.h"
-#include <arm_math.h>
+#include "daisysp.h"
 
 class EnvelopeGenerator {
 public:

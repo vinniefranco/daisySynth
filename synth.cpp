@@ -1,5 +1,4 @@
 #include "daisy_seed.h"
-#include <queue>
 
 #include "engine/VoiceManager.h"
 #include "synth_ui.h"
@@ -104,41 +103,51 @@ int main(void) {
           break;
         }
 
-        case 80: {
+        case 72: {
           voiceManager.setDetune((float)cc.value / 127.f);
+          break;
+        }
+
+        case 73: {
+          voiceManager.setFilterEnvAmount((float)cc.value / 127.f);
+          break;
+        }
+
+        case 74: {
+          voiceManager.setFilterLFOAmount(((float)cc.value / 127.f) / 2.f);
+          break;
+        }
+
+        case 75: {
+          voiceManager.setLFOFrequency(((float)cc.value / 127.f) * 10.f);
           break;
         }
 
         case 90: {
           voiceManager.setVolumeEnvelopeStageValue(
               EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
-              (float)cc.value / 127.f + 0.01f);
+              daisysp::fmax((float)cc.value / 127.f, 0.01f));
           break;
         }
 
         case 91: {
           voiceManager.setVolumeEnvelopeStageValue(
               EnvelopeGenerator::ENVELOPE_STAGE_DECAY,
-              (float)cc.value / 127.f + 0.01f);
+              daisysp::fmax((float)cc.value / 127.f, 0.01f));
           break;
         }
 
         case 92: {
           voiceManager.setVolumeEnvelopeStageValue(
               EnvelopeGenerator::ENVELOPE_STAGE_SUSTAIN,
-              (float)cc.value / 127.f + 0.01f);
+              daisysp::fmax((float)cc.value / 127.f, 0.01f));
           break;
         }
 
         case 93: {
           voiceManager.setVolumeEnvelopeStageValue(
               EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
-              (float)cc.value / 127.f * 2.f + 0.01f);
-          break;
-        }
-
-        case 99: {
-          voiceManager.setFilterEnvAmount((float)cc.value / 127.f);
+              ((float)cc.value / 127.f + 0.01f) * 6.f);
           break;
         }
 

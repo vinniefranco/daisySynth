@@ -13,7 +13,7 @@ float WaveOsc::Process() {
   if ((current_index_ += table_delta_) > wt_samps)
     current_index_ -= wt_samps;
 
-  return current_sample * amp_;
+  return (current_sample + lfo_amount_) * amp_;
 }
 
 void WaveOsc::SetFreq(float freq) {

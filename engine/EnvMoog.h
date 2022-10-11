@@ -2,7 +2,7 @@
 #define __FILTER__
 
 #pragma once
-#include <cmath>
+#include "daisysp.h"
 
 class EnvMoog {
 public:
@@ -44,7 +44,7 @@ private:
   float buf3;
   float cutoffMod;
   inline float getCalculatedCutoff() const {
-    return fmax(fmin(cutoff + cutoffMod, 0.99), 0.01);
+    return daisysp::fmax(daisysp::fmin(cutoff + cutoffMod, 0.99), 0.01);
   }
   inline void calculateFeedbackAmount() {
     feedbackAmount = resonance + resonance / (1.0 - getCalculatedCutoff());

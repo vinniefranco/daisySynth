@@ -41,8 +41,8 @@ void VoiceManager::onNoteOn(int midi_note, int velocity) {
   voice->setNoteNumber(midi_note, midi_[midi_note]);
   voice->mVelocity = velocity;
   voice->isActive = true;
-  voice->mVolumeEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
-  voice->mFilterEnvelope.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
+  voice->v_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
+  voice->f_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
 }
 void VoiceManager::onNoteOff(int midi_note, int velocity) {
   // Find the voice with given note number
@@ -50,10 +50,8 @@ void VoiceManager::onNoteOff(int midi_note, int velocity) {
     Voice &voice = voices_[i];
 
     if (voice.isActive && voice.note_number == midi_note) {
-      voice.mVolumeEnvelope.enterStage(
-          EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
-      voice.mFilterEnvelope.enterStage(
-          EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
+      voice.v_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
+      voice.f_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
     }
   }
 }
@@ -96,8 +94,5 @@ void VoiceManager::Process(float *left, float *right) {
   if (output < -1.0f)
     output = -1.0f;
 
-  float fir = del_.Read();
-  del_.Write(output);
-
-  *left = *right = (output * .7f) + (fir * 0.3f);
+  *left = *right = (output);
 }

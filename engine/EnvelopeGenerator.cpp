@@ -74,9 +74,10 @@ void EnvelopeGenerator ::enterStage(EnvelopeStage newStage) {
   // let the level fall to the sustain level fmax to make sure its not 0
   case ENVELOPE_STAGE_DECAY:
     currentLevel = 1.0;
-    calculateMultiplier(currentLevel,
-                        fmax(stageValue[ENVELOPE_STAGE_SUSTAIN], minimumLevel),
-                        nextStageSampleIndex);
+    calculateMultiplier(
+        currentLevel,
+        daisysp::fmax(stageValue[ENVELOPE_STAGE_SUSTAIN], minimumLevel),
+        nextStageSampleIndex);
     break;
 
   //  assign the stageValue to the current level
@@ -121,7 +122,8 @@ void EnvelopeGenerator::setStageValue(EnvelopeStage stage, float value) {
         break;
 
       case ENVELOPE_STAGE_DECAY:
-        nextLevelValue = fmax(stageValue[ENVELOPE_STAGE_SUSTAIN], minimumLevel);
+        nextLevelValue =
+            daisysp::fmax(stageValue[ENVELOPE_STAGE_SUSTAIN], minimumLevel);
         break;
       case ENVELOPE_STAGE_RELEASE:
         nextLevelValue = minimumLevel;
@@ -147,8 +149,9 @@ void EnvelopeGenerator::setStageValue(EnvelopeStage stage, float value) {
     // We have to decay to a different sustain value than before
     // and re-calculate multiplier
     float sampleUntilNextStage = nextStageSampleIndex - currentSampleIndex;
-    calculateMultiplier(currentLevel,
-                        fmax(stageValue[ENVELOPE_STAGE_SUSTAIN], minimumLevel),
-                        sampleUntilNextStage);
+    calculateMultiplier(
+        currentLevel,
+        daisysp::fmax(stageValue[ENVELOPE_STAGE_SUSTAIN], minimumLevel),
+        sampleUntilNextStage);
   }
 }
