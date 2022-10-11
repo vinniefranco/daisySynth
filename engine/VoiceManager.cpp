@@ -59,17 +59,16 @@ void VoiceManager::onNoteOff(int midi_note, int velocity) {
 }
 
 void VoiceManager::setFilterCutoff(float cutoff) {
-  float new_cutoff = expf(cutoff * (lmax_ - lmin_) + lmin_);
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
-    voice.flt.SetFreq(new_cutoff);
+    voice.flt.setCutoff(cutoff);
   }
 }
 
-void VoiceManager::setFilterResonance(float cutoff) {
+void VoiceManager::setFilterResonance(float resonance) {
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
-    voice.flt.SetRes(cutoff);
+    voice.flt.setResonance(resonance);
   }
 }
 

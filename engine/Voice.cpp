@@ -8,6 +8,9 @@ float Voice::nextSample() {
   float oscillatorSum = oscillatorOneOutput + oscillatorTwoOutput;
 
   float volumeEnvelopeValue = mVolumeEnvelope.nextSample();
+  float filterEnvelopeValue = mFilterEnvelope.nextSample();
+
+  flt.setCutoffMod(filterEnvelopeValue * mFilterEnvelopeAmount);
 
   return flt.Process(oscillatorSum * volumeEnvelopeValue * mVelocity / 127.0);
 }
@@ -19,5 +22,6 @@ void Voice::reset() {
   osc1.Reset();
   mVolumeEnvelope.reset();
   mFilterEnvelope.reset();
-  flt.Init(48000.0f);
+  // flt.Init(48000.0f);
+  flt.reset();
 }

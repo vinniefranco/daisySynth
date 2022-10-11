@@ -94,58 +94,79 @@ int main(void) {
         auto cc = msg.AsControlChange();
         switch (cc.control_number) {
 
-        case 100: {
+        case 70: {
           ui.SetCutoff(cc.value);
           break;
         }
 
-        case 101: {
+        case 71: {
           ui.SetRes(cc.value);
           break;
         }
 
-        case 102: {
+        case 80: {
           voiceManager.setDetune((float)cc.value / 127.f);
           break;
         }
 
+        case 90: {
+          voiceManager.setVolumeEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
+              (float)cc.value / 127.f + 0.01f);
+          break;
+        }
+
+        case 91: {
+          voiceManager.setVolumeEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_DECAY,
+              (float)cc.value / 127.f + 0.01f);
+          break;
+        }
+
+        case 92: {
+          voiceManager.setVolumeEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_SUSTAIN,
+              (float)cc.value / 127.f + 0.01f);
+          break;
+        }
+
+        case 93: {
+          voiceManager.setVolumeEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
+              (float)cc.value / 127.f * 2.f + 0.01f);
+          break;
+        }
+
+        case 99: {
+          voiceManager.setFilterEnvAmount((float)cc.value / 127.f);
+          break;
+        }
+
+        case 100: {
+          voiceManager.setFilterEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
+              (float)cc.value / 127.f * 2.f + 0.01f);
+          break;
+        }
+
+        case 101: {
+          voiceManager.setFilterEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_DECAY,
+              (float)cc.value / 127.f + 0.01f);
+          break;
+        }
+
+        case 102: {
+          voiceManager.setFilterEnvelopeStageValue(
+              EnvelopeGenerator::ENVELOPE_STAGE_SUSTAIN,
+              (float)cc.value / 127.f + 0.01f);
+          break;
+        }
+
         case 103: {
-          voiceManager.setVolumeEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
-              (float)cc.value / 127.f);
-          break;
-        }
-
-        case 104: {
-          voiceManager.setVolumeEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_DECAY, (float)cc.value / 127.f);
-          break;
-        }
-
-        case 105: {
-          voiceManager.setVolumeEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
-              (float)cc.value / 127.f);
-          break;
-        }
-
-        case 106: {
-          voiceManager.setFilterEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
-              (float)cc.value / 127.f);
-          break;
-        }
-
-        case 107: {
-          voiceManager.setFilterEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_DECAY, (float)cc.value / 127.f);
-          break;
-        }
-
-        case 108: {
           voiceManager.setFilterEnvelopeStageValue(
               EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
-              (float)cc.value / 127.f);
+              (float)cc.value / 127.f + 0.01f);
           break;
         }
         }

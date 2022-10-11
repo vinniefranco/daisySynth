@@ -15,7 +15,7 @@ private:
   float lmax_ = logf(15000.0f);
   float volume_;
   daisysp::DelayLine<float, 32> del_;
-  static const int number_of_voices_ = 8;
+  static const int number_of_voices_ = 12;
   Voice voices_[number_of_voices_];
   daisysp::Oscillator lfo_;
 

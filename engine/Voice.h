@@ -3,6 +3,7 @@
 #include "EnvelopeGenerator.h"
 #include "daisysp.h"
 
+#include "EnvMoog.h"
 #include "WaveOsc.h"
 
 #include <math.h>
@@ -11,7 +12,7 @@ class Voice {
 private:
   WaveOsc osc0;
   WaveOsc osc1;
-  daisysp::MoogLadder flt;
+  EnvMoog flt;
   daisysp::WhiteNoise noise;
   EnvelopeGenerator mVolumeEnvelope;
   EnvelopeGenerator mFilterEnvelope;
@@ -46,7 +47,7 @@ public:
     osc1.SetWaveform(waveform);
     osc1.SetAmp(osc_amp);
 
-    flt.Init(new_sample_rate);
+    // flt.Init(new_sample_rate);
     noise.Init();
     noise.SetAmp(0.01f);
   }
