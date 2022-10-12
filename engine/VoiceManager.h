@@ -53,59 +53,36 @@ public:
 
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
 
-  inline void setVolumeEnvelopeStageValue(VoiceManager::EnvStage stage,
-                                          float value) {
-
-    for (int i = 0; i < number_of_voices_; i++) {
-      Voice &voice = voices_[i];
-      switch (stage) {
-      case ATTACK: {
-        voice.v_env.setAttackRate(value);
-
-        break;
-      }
-      case DECAY: {
-        voice.v_env.setDecayRate(value);
-        break;
-      }
-      case SUSTAIN: {
-        voice.v_env.setSustainLevel(value);
-        break;
-      }
-
-      case RELEASE: {
-        voice.v_env.setReleaseRate(value);
-        break;
-      }
-      }
-    }
+  inline void setVolumeAttack(float value) {
+    ForEachVoice(v_env.setAttackRate(value));
   }
 
-  inline void setFilterEnvelopeStageValue(VoiceManager::EnvStage stage,
-                                          float value) {
-    for (int i = 0; i < number_of_voices_; i++) {
-      Voice &voice = voices_[i];
-      switch (stage) {
-      case ATTACK: {
-        voice.f_env.setAttackRate(value);
+  inline void setVolumeDecay(float value) {
+    ForEachVoice(v_env.setDecayRate(value));
+  }
 
-        break;
-      }
-      case DECAY: {
-        voice.f_env.setDecayRate(value);
-        break;
-      }
-      case SUSTAIN: {
-        voice.f_env.setSustainLevel(value);
-        break;
-      }
+  inline void setVolumeSustain(float value) {
+    ForEachVoice(v_env.setSustainLevel(value));
+  }
 
-      case RELEASE: {
-        voice.f_env.setReleaseRate(value);
-        break;
-      }
-      }
-    }
+  inline void setVolumeRelease(float value) {
+    ForEachVoice(v_env.setReleaseRate(value));
+  }
+
+  inline void setFilterAttack(float value) {
+    ForEachVoice(f_env.setAttackRate(value));
+  }
+
+  inline void setFilterDecay(float value) {
+    ForEachVoice(f_env.setDecayRate(value));
+  }
+
+  inline void setFilterSustain(float value) {
+    ForEachVoice(f_env.setSustainLevel(value));
+  }
+
+  inline void setFilterRelease(float value) {
+    ForEachVoice(f_env.setReleaseRate(value));
   }
 
   inline void setDetune(float value) { ForEachVoice(setDetune(value)); }
