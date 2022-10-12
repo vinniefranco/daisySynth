@@ -1,7 +1,8 @@
 #ifndef __VOICEMANAGER__
 #define __VOICEMANAGER__
-#include "Noise/whitenoise.h"
 #pragma once
+
+#include "Noise/whitenoise.h"
 #include "sys/system.h"
 
 #include "Voice.h"
@@ -43,6 +44,13 @@ public:
       midi_[x] = daisysp::mtof(x);
     }
   }
+
+#define ForEachVoice(expr)                                                     \
+  for (int i = 0; i < number_of_voices_; i++) {                                \
+    Voice &voice = voices_[i];                                                 \
+    voice.expr;                                                                \
+  }
+
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
 
   inline void setVolumeEnvelopeStageValue(VoiceManager::EnvStage stage,
@@ -100,25 +108,14 @@ public:
     }
   }
 
-  inline void setDetune(float value) {
-    for (int i = 0; i < number_of_voices_; i++) {
-      Voice &voice = voices_[i];
-      voice.setDetune(value);
-    }
-  }
+  inline void setDetune(float value) { ForEachVoice(setDetune(value)); }
 
   inline void setFilterEnvAmount(float amount) {
-    for (int i = 0; i < number_of_voices_; i++) {
-      Voice &voice = voices_[i];
-      voice.setFilterEnvelopeAmount(amount);
-    }
+    ForEachVoice(setFilterEnvelopeAmount(amount));
   }
 
   inline void setFilterLFOAmount(float amount) {
-    for (int i = 0; i < number_of_voices_; i++) {
-      Voice &voice = voices_[i];
-      voice.setFilterLFOAmount(amount);
-    }
+    ForEachVoice(setFilterLFOAmount(amount));
   }
 };
 
