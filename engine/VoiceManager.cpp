@@ -41,8 +41,8 @@ void VoiceManager::onNoteOn(int midi_note, int velocity) {
   voice->setNoteNumber(midi_note, midi_[midi_note]);
   voice->velocity = velocity;
   voice->isActive = true;
-  voice->v_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
-  voice->f_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_ATTACK);
+  voice->v_env.gate(true);
+  voice->f_env.gate(true);
 }
 void VoiceManager::onNoteOff(int midi_note, int velocity) {
   // Find the voice with given note number
@@ -50,8 +50,8 @@ void VoiceManager::onNoteOff(int midi_note, int velocity) {
     Voice &voice = voices_[i];
 
     if (voice.isActive && voice.note_number == midi_note) {
-      voice.v_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
-      voice.f_env.enterStage(EnvelopeGenerator::ENVELOPE_STAGE_RELEASE);
+      voice.v_env.gate(false);
+      voice.f_env.gate(false);
     }
   }
 }

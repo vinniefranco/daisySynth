@@ -1,8 +1,8 @@
 #pragma once
 
-#include "EnvelopeGenerator.h"
 #include "daisysp.h"
 
+#include "ADSR.h"
 #include "EnvMoog.h"
 #include "WaveOsc.h"
 
@@ -14,8 +14,8 @@ private:
   WaveOsc osc1_;
   EnvMoog flt;
   daisysp::WhiteNoise noise_;
-  EnvelopeGenerator v_env;
-  EnvelopeGenerator f_env;
+  ADSR v_env;
+  ADSR f_env;
   int note_number;
   int velocity;
   float detune = 0.0f;
@@ -33,9 +33,9 @@ public:
   Voice()
       : note_number(-1), velocity(0), mFilterEnvelopeAmount(0.0), mOscMix(0.5),
         mFilterLFOAmount(0.0), mOscOnePitchAmount(0.0), mOscTwoPitchAmount(0.0),
-        mLFOValue(0.0), isActive(false) {
-    v_env.finishedEnvelopeCycle.Connect(this, &Voice::setFree);
-  };
+        mLFOValue(0.0), isActive(false){
+                            // TODO: ANYTHING NEEDED?
+                        };
 
   inline void Init(float new_sample_rate, const int8_t waveform,
                    float osc_amp) {
@@ -46,6 +46,16 @@ public:
     osc1_.Init(new_sample_rate);
     osc1_.SetWaveform(waveform);
     osc1_.SetAmp(osc_amp);
+
+    v_env.setAttackRate(.1f * new_sample_rate);
+    v_env.setDecayRate(.3f * new_sample_rate);
+    v_env.setSustainLevel(.7f);
+    v_env.setReleaseRate(2.7f * new_sample_rate);
+
+    f_env.setAttackRate(.1f * new_sample_rate);
+    f_env.setDecayRate(.3f * new_sample_rate);
+    f_env.setSustainLevel(.7f);
+    f_env.setReleaseRate(2.7f * new_sample_rate);
 
     noise_.Init();
     noise_.SetAmp(0.01f);

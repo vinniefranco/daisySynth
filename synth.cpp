@@ -125,57 +125,61 @@ int main(void) {
 
         case 90: {
           voiceManager.setVolumeEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
-              daisysp::fmax((float)cc.value / 127.f, 0.01f));
+              VoiceManager::ATTACK,
+              daisysp::fmap((float)cc.value / 127.f, 0.01f, 4.f,
+                            daisysp::Mapping::LOG) *
+                  sample_rate);
           break;
         }
 
         case 91: {
           voiceManager.setVolumeEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_DECAY,
-              daisysp::fmax((float)cc.value / 127.f, 0.01f));
+              VoiceManager::DECAY,
+              daisysp::fmap((float)cc.value / 127.f, 0.1f, 2.f) * sample_rate);
           break;
         }
 
         case 92: {
           voiceManager.setVolumeEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_SUSTAIN,
+              VoiceManager::SUSTAIN,
               daisysp::fmax((float)cc.value / 127.f, 0.01f));
           break;
         }
 
         case 93: {
           voiceManager.setVolumeEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
-              ((float)cc.value / 127.f + 0.01f) * 3.f);
+              VoiceManager::RELEASE,
+              daisysp::fmap((float)cc.value / 127.f, 0.1f, 4.f) * sample_rate);
           break;
         }
 
         case 100: {
           voiceManager.setFilterEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_ATTACK,
-              (float)cc.value / 127.f * 2.f + 0.01f);
+              VoiceManager::ATTACK,
+              daisysp::fmap((float)cc.value / 127.f, 0.01f, 4.f,
+                            daisysp::Mapping::LOG) *
+                  sample_rate);
           break;
         }
 
         case 101: {
           voiceManager.setFilterEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_DECAY,
-              (float)cc.value / 127.f + 0.01f);
+              VoiceManager::DECAY,
+              daisysp::fmap((float)cc.value / 127.f, 0.1f, 2.f) * sample_rate);
           break;
         }
 
         case 102: {
           voiceManager.setFilterEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_SUSTAIN,
-              (float)cc.value / 127.f + 0.01f);
+              VoiceManager::SUSTAIN,
+              daisysp::fmax((float)cc.value / 127.f, 0.01f));
           break;
         }
 
         case 103: {
           voiceManager.setFilterEnvelopeStageValue(
-              EnvelopeGenerator::ENVELOPE_STAGE_RELEASE,
-              (float)cc.value / 127.f + 0.01f);
+              VoiceManager::RELEASE,
+              daisysp::fmap((float)cc.value / 127.f, 0.1f, 4.f) * sample_rate);
           break;
         }
         }

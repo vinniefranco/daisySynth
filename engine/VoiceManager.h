@@ -2,7 +2,6 @@
 #define __VOICEMANAGER__
 #include "Noise/whitenoise.h"
 #pragma once
-#include "daisysp.h"
 #include "sys/system.h"
 
 #include "Voice.h"
@@ -22,6 +21,7 @@ private:
   Voice *findFreeVoice(int noteNUmber);
 
 public:
+  enum EnvStage { ATTACK, DECAY, SUSTAIN, RELEASE };
   void onNoteOn(int note_number, int velocity);
   void onNoteOff(int note_number, int velocity);
   void setFilterCutoff(float cutoff);
@@ -30,7 +30,6 @@ public:
   float nextSample();
   void Process(float *left, float *right);
   void setSampleRate(float sample_rate) {
-    EnvelopeGenerator::setSampleRate(sample_rate);
     for (int i = 0; i < number_of_voices_; i++) {
       Voice &voice = voices_[i];
       voice.Init(sample_rate, WaveOsc::WAVE_SAW, 0.5f);
@@ -48,22 +47,58 @@ public:
   }
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
 
-  inline void
-  setVolumeEnvelopeStageValue(EnvelopeGenerator::EnvelopeStage stage,
-                              float value) {
+  inline void setVolumeEnvelopeStageValue(VoiceManager::EnvStage stage,
+                                          float value) {
 
     for (int i = 0; i < number_of_voices_; i++) {
       Voice &voice = voices_[i];
-      voice.v_env.setStageValue(stage, value);
+      switch (stage) {
+      case ATTACK: {
+        voice.v_env.setAttackRate(value);
+
+        break;
+      }
+      case DECAY: {
+        voice.v_env.setDecayRate(value);
+        break;
+      }
+      case SUSTAIN: {
+        voice.v_env.setSustainLevel(value);
+        break;
+      }
+
+      case RELEASE: {
+        voice.v_env.setReleaseRate(value);
+        break;
+      }
+      }
     }
   }
 
-  inline void
-  setFilterEnvelopeStageValue(EnvelopeGenerator::EnvelopeStage stage,
-                              float value) {
+  inline void setFilterEnvelopeStageValue(VoiceManager::EnvStage stage,
+                                          float value) {
     for (int i = 0; i < number_of_voices_; i++) {
       Voice &voice = voices_[i];
-      voice.f_env.setStageValue(stage, value);
+      switch (stage) {
+      case ATTACK: {
+        voice.f_env.setAttackRate(value);
+
+        break;
+      }
+      case DECAY: {
+        voice.f_env.setDecayRate(value);
+        break;
+      }
+      case SUSTAIN: {
+        voice.f_env.setSustainLevel(value);
+        break;
+      }
+
+      case RELEASE: {
+        voice.f_env.setReleaseRate(value);
+        break;
+      }
+      }
     }
   }
 
