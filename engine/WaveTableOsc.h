@@ -34,7 +34,7 @@ public:
   };
   static constexpr int numWaveTableSlots =
       18; // simplify allocation with reasonable maximum
-  waveTable mWaveTables[numWaveTableSlots];
+  static waveTable mWaveTables[numWaveTableSlots];
 
   WaveTableOsc(void) {
     for (int idx = 0; idx < numWaveTableSlots; idx++) {
