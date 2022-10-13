@@ -94,5 +94,7 @@ void VoiceManager::Process(float *left, float *right) {
   if (output < -1.0f)
     output = -1.0f;
 
-  *left = *right = (output);
+  last_sample = output;
+
+  *left = *right = output;
 }

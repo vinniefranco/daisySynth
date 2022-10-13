@@ -18,7 +18,7 @@ private:
   ADSR f_env;
   int note_number;
   int velocity;
-  float detune = 0.0f;
+  float detune = 0.1f;
   float mFilterEnvelopeAmount;
   float mOscMix;
   float mFilterLFOAmount;

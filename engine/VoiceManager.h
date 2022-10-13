@@ -20,6 +20,7 @@ private:
   Voice *findFreeVoice(int noteNUmber);
 
 public:
+  float last_sample = 0.0f;
   enum EnvStage { ATTACK, DECAY, SUSTAIN, RELEASE };
   void onNoteOn(int note_number, int velocity);
   void onNoteOff(int note_number, int velocity);
@@ -35,7 +36,7 @@ public:
     }
     comp_.Init(sample_rate);
     comp_.AutoMakeup(false);
-    comp_.SetMakeup(10.0f);
+    comp_.SetMakeup(14.0f);
     lfo_.Init(sample_rate);
     lfo_.SetWaveform(lfo_.WAVE_SIN);
     lfo_.SetAmp(0.9f);
