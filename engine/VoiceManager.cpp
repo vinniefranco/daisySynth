@@ -57,44 +57,33 @@ void VoiceManager::onNoteOff(int midi_note, int velocity) {
 }
 
 void VoiceManager::setFilterCutoff(float cutoff) {
-  for (int i = 0; i < number_of_voices_; i++) {
-    Voice &voice = voices_[i];
-    voice.flt.setCutoff(cutoff);
-  }
+  ForEachVoice(flt.setCutoff(cutoff));
 }
 
 void VoiceManager::setFilterResonance(float resonance) {
-  for (int i = 0; i < number_of_voices_; i++) {
-    Voice &voice = voices_[i];
-    voice.flt.setResonance(resonance);
-  }
+  ForEachVoice(flt.setResonance(resonance));
 }
 
-float VoiceManager::nextSample() {
-  float output = 0.0;
+void VoiceManager::Process(float *left, float *right) {
+  float output = 0.0f;
   float lfo_value = lfo_.Process();
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
     if (voice.isActive) {
-      voice.setLFOValue(lfo_value);
+      // voice.setLFOValue(lfo_value);
+      voice.setLFOValue(0);
       output += voice.nextSample();
     }
   }
-  output = comp_.Process(output * (1.0f / (float)number_of_voices_));
 
-  return output * volume_;
-}
-
-void VoiceManager::Process(float *left, float *right) {
-  float output = nextSample();
-  // Quick hard clipping
-  if (output > 1.0f)
-    output = 1.0f;
-
-  if (output < -1.0f)
-    output = -1.0f;
+  float temp_vol = 1.f / (float)number_of_voices_;
+  // output = comp_.Process(output * temp_vol);
+  // output = chorus.Process(output);
 
   last_sample = output;
 
-  *left = *right = output;
+  // *left = chorus.GetLeft();
+  // *right = chorus.GetRight();
+  *left = output;
+  *right = output;
 }

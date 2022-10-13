@@ -120,10 +120,35 @@ public:
       display.SetCursor(0, 52);
       display.WriteString(pot, Font_6x8, true);
 
+      float neg[128];
+      float pos[128];
       for (size_t i = 0; i < 128; i++) {
-        uint8_t y = (uint8_t)daisysp::fmap(screen_buffer[i] + 1.0f, 1.0f, 64.f,
-                                           daisysp::Mapping::LOG);
-        display.DrawPixel(i, 74 - y, true);
+        pos[i] = 0.0f;
+        neg[i] = 0.0f;
+        if (screen_buffer[i] >= 0.0000f) {
+          pos[i] = screen_buffer[i];
+        } else {
+          neg[i] = abs(screen_buffer[i]);
+        }
+        // uint8_t y = (uint8_t)daisysp::fmap(screen_buffer[i]
+        // + 1.0f, 1.0f, 64.f,
+        //                                    daisysp::Mapping::LOG);
+        // display.DrawPixel(i, 74 - y, true);
+      }
+
+      for (size_t i = 0; i < 128; i++) {
+        uint8_t y1 = (uint8_t)daisysp::fmap(pos[i] * 1.3f, 1.0f, 32.f,
+                                            daisysp::Mapping::EXP);
+
+        uint8_t y2 = (uint8_t)daisysp::fmap(neg[i] * 1.3f, 1.0f, 32.f,
+                                            daisysp::Mapping::EXP);
+
+        if (y1 > 0) {
+          display.DrawPixel(i, 10 + y1, true);
+        }
+        if (y2 > 0) {
+          display.DrawPixel(i, 50 - y2, true);
+        }
       }
 
       // display.DrawLine(0, 20, position, 20, true);

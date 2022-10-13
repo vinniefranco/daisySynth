@@ -1,17 +1,22 @@
 #pragma once
 
+#include "daisy_seed.h"
 #include "daisysp.h"
 
 #include "ADSR.h"
 #include "EnvFilter.h"
 #include "WaveOsc.h"
+#include "WaveUtils.h"
 
 #include <math.h>
 
 class Voice {
 private:
-  WaveOsc osc0_;
+  // WaveOsc osc0_;
+  WaveTableOsc *osc0_;
   WaveOsc osc1_;
+  // daisysp::Oscillator osc0_;
+  // daisysp::Oscillator osc1_;
   EnvFilter flt;
   daisysp::WhiteNoise noise_;
   ADSR v_env;
@@ -29,19 +34,19 @@ private:
 
 public:
   friend class VoiceManager;
+  int panning = 3;
   uint32_t started_at;
   Voice()
-      : note_number(-1), velocity(0), mFilterEnvelopeAmount(0.0), mOscMix(0.5),
-        mFilterLFOAmount(0.0), mOscOnePitchAmount(0.0), mOscTwoPitchAmount(0.0),
-        mLFOValue(0.0), isActive(false){
-                            // TODO: ANYTHING NEEDED?
-                        };
+      : note_number(-1), velocity(0), mFilterEnvelopeAmount(0.0f),
+        mOscMix(0.5f), mFilterLFOAmount(0.0f), mOscOnePitchAmount(0.0f),
+        mOscTwoPitchAmount(0.0f), mLFOValue(0.0f), isActive(false){};
 
   inline void Init(float new_sample_rate, const int8_t waveform,
                    float osc_amp) {
-    osc0_.Init(new_sample_rate);
-    osc0_.SetWaveform(waveform);
-    osc0_.SetAmp(osc_amp);
+    osc0_ = sawOsc();
+    // osc0_.Init(new_sample_rate);
+    // osc0_.SetWaveform(waveform);
+    // osc0_.SetAmp(osc_amp);
 
     osc1_.Init(new_sample_rate);
     osc1_.SetWaveform(waveform);
@@ -76,7 +81,8 @@ public:
   inline void setLFOValue(float value) { mLFOValue = value; }
   inline void setNoteNumber(int midi_note, float freq) {
     note_number = midi_note;
-    osc0_.SetFreq(freq - detune);
+    // osc0_.SetFreq(freq - detune);
+    osc0_->SetFreq(freq - detune);
     osc1_.SetFreq(freq + detune);
   }
   float nextSample();
