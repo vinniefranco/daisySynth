@@ -6,14 +6,14 @@
 #include "ADSR.h"
 #include "EnvFilter.h"
 #include "WaveOsc.h"
-#include "WaveUtils.h"
+#include "WaveTableOsc.h"
 
 #include <math.h>
 
 class Voice {
 private:
   // WaveOsc osc0_;
-  WaveTableOsc *osc0_;
+  WaveTableOsc osc0_;
   WaveOsc osc1_;
   // daisysp::Oscillator osc0_;
   // daisysp::Oscillator osc1_;
@@ -43,7 +43,6 @@ public:
 
   inline void Init(float new_sample_rate, const int8_t waveform,
                    float osc_amp) {
-    osc0_ = sawOsc();
     // osc0_.Init(new_sample_rate);
     // osc0_.SetWaveform(waveform);
     // osc0_.SetAmp(osc_amp);
@@ -81,8 +80,7 @@ public:
   inline void setLFOValue(float value) { mLFOValue = value; }
   inline void setNoteNumber(int midi_note, float freq) {
     note_number = midi_note;
-    // osc0_.SetFreq(freq - detune);
-    osc0_->SetFreq(freq - detune);
+    osc0_.SetFreq(freq - detune);
     osc1_.SetFreq(freq + detune);
   }
   float nextSample();

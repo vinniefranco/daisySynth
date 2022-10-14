@@ -4,7 +4,7 @@ float Voice::nextSample() {
   if (!isActive)
     return 0.0f;
 
-  float oscillatorOneOutput = osc0_->Process();
+  float oscillatorOneOutput = osc0_.Process();
   float oscillatorTwoOutput = osc1_.Process();
   float oscillatorSum = oscillatorOneOutput + oscillatorTwoOutput;
   oscillatorSum = oscillatorOneOutput;

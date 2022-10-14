@@ -6,13 +6,13 @@ USE_ARM_DSP = 1
 
 # Sources
 CPP_SOURCES = synth.cpp 
+CPP_SOURCES += engine/WaveUtils.cpp 
 CPP_SOURCES += engine/Voice.cpp 
 CPP_SOURCES += engine/VoiceManager.cpp 
 CPP_SOURCES += engine/WaveOsc.cpp 
 CPP_SOURCES += engine/EnvFilter.cpp 
 CPP_SOURCES += engine/ADSR.cpp 
 CPP_SOURCES += engine/Engine.cpp 
-CPP_SOURCES += engine/WaveUtils.cpp 
 
 # Library Locations
 LIBDAISY_DIR = ../DaisyExamples/libDaisy

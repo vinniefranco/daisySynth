@@ -23,32 +23,24 @@
 #ifndef WaveTableOsc_h
 #define WaveTableOsc_h
 
+#include "WaveUtils.h"
+
 #include "daisy_seed.h"
+
+static constexpr int numWaveTableSlots =
+    18; // simplify allocation with reasonable maximum
+static waveTable DSY_SDRAM_BSS saw_slot[numWaveTableSlots];
+static int saw_wt_count;
 
 class WaveTableOsc {
 public:
-  struct waveTable {
-    float topFreq;
-    int waveTableLen;
-    float *waveTable;
-  };
-  static constexpr int numWaveTableSlots =
-      18; // simplify allocation with reasonable maximum
-  waveTable mWaveTables[numWaveTableSlots];
-
-  WaveTableOsc(void) {
-    for (int idx = 0; idx < numWaveTableSlots; idx++) {
-      mWaveTables[idx].topFreq = 0;
-      mWaveTables[idx].waveTableLen = 0;
-      mWaveTables[idx].waveTable = 0;
-    }
-  }
+  WaveTableOsc(void) { sawOsc(saw_slot, &saw_wt_count, numWaveTableSlots); }
   ~WaveTableOsc(void) {
-    for (int idx = 0; idx < numWaveTableSlots; idx++) {
-      float *temp = WaveTableOsc::mWaveTables[idx].waveTable;
-      if (temp != 0)
-        delete[] temp;
-    }
+    // for (int idx = 0; idx < numWaveTableSlots; idx++) {
+    //   float *temp = WaveTableOsc::mWaveTables[idx].waveTable;
+    //   if (temp != 0)
+    //     delete[] temp;
+    // }
   }
 
   //
@@ -60,8 +52,8 @@ public:
 
     // update the current wave table selector
     int curWaveTable = 0;
-    while ((mPhaseInc >= mWaveTables[curWaveTable].topFreq) &&
-           (curWaveTable < (mNumWaveTables - 1))) {
+    while ((mPhaseInc >= saw_slot[curWaveTable].topFreq) &&
+           (curWaveTable < (saw_wt_count - 1))) {
       ++curWaveTable;
     }
     mCurWaveTable = curWaveTable;
@@ -72,8 +64,8 @@ public:
 
     // update the current wave table selector
     int curWaveTable = 0;
-    while ((mPhaseInc >= WaveTableOsc::mWaveTables[curWaveTable].topFreq) &&
-           (curWaveTable < (mNumWaveTables - 1))) {
+    while ((mPhaseInc >= saw_slot[curWaveTable].topFreq) &&
+           (curWaveTable < (saw_wt_count - 1))) {
       ++curWaveTable;
     }
     mCurWaveTable = curWaveTable;
@@ -106,7 +98,7 @@ public:
   // GetOutput: Returns the current oscillator output
   //
   float GetOutput(void) {
-    waveTable waveTable = WaveTableOsc::mWaveTables[mCurWaveTable];
+    waveTable waveTable = saw_slot[mCurWaveTable];
 
     // linear interpolation
     float temp = mPhasor * waveTable.waveTableLen;
@@ -126,7 +118,7 @@ public:
   // returns the current oscillator output
   //
   float GetOutputMinusOffset() {
-    waveTable waveTable = mWaveTables[mCurWaveTable];
+    waveTable waveTable = saw_slot[mCurWaveTable];
     int len = waveTable.waveTableLen;
     float *wave = waveTable.waveTable;
 
@@ -150,42 +142,13 @@ public:
     return samp - (samp0 + (samp1 - samp0) * fracPart);
   }
 
-  //
-  // AddWaveTable
-  //
-  // add wavetables in order of lowest frequency to highest
-  // topFreq is the highest frequency supported by a wavetable
-  // wavetables within an oscillator can be different lengths
-  //
-  // returns 0 upon success, or the number of wavetables if no more room is
-  // available
-  //
-  int AddWaveTable(int len, float *waveTableIn, double topFreq) {
-    if (mNumWaveTables < numWaveTableSlots) {
-      float *waveTable = mWaveTables[mNumWaveTables].waveTable =
-          new float[len + 1];
-      WaveTableOsc::mWaveTables[mNumWaveTables].waveTableLen = len;
-      WaveTableOsc::mWaveTables[mNumWaveTables].topFreq = topFreq;
-      ++mNumWaveTables;
-
-      // fill in wave
-      for (long idx = 0; idx < len; idx++)
-        waveTable[idx] = waveTableIn[idx];
-      waveTable[len] = waveTable[0]; // duplicate for interpolation wraparound
-
-      return 0;
-    }
-    return WaveTableOsc::mNumWaveTables;
-  }
-
 protected:
   float mPhasor = 0.0;   // phase accumulator
   float mPhaseInc = 0.0; // phase increment
   float mPhaseOfs = 0.5; // phase offset for PWM
 
   // array of wavetables
-  int mCurWaveTable = 0;  // current table, based on current frequency
-  int mNumWaveTables = 0; // number of wavetable slots in use
+  int mCurWaveTable = 0; // current table, based on current frequency
 };
 
 #endif
