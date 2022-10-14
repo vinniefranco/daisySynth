@@ -34,7 +34,7 @@ public:
   };
   static constexpr int numWaveTableSlots =
       18; // simplify allocation with reasonable maximum
-  static waveTable mWaveTables[numWaveTableSlots];
+  waveTable mWaveTables[numWaveTableSlots];
 
   WaveTableOsc(void) {
     for (int idx = 0; idx < numWaveTableSlots; idx++) {
@@ -45,7 +45,7 @@ public:
   }
   ~WaveTableOsc(void) {
     for (int idx = 0; idx < numWaveTableSlots; idx++) {
-      float *temp = mWaveTables[idx].waveTable;
+      float *temp = WaveTableOsc::mWaveTables[idx].waveTable;
       if (temp != 0)
         delete[] temp;
     }
@@ -72,7 +72,7 @@ public:
 
     // update the current wave table selector
     int curWaveTable = 0;
-    while ((mPhaseInc >= mWaveTables[curWaveTable].topFreq) &&
+    while ((mPhaseInc >= WaveTableOsc::mWaveTables[curWaveTable].topFreq) &&
            (curWaveTable < (mNumWaveTables - 1))) {
       ++curWaveTable;
     }
@@ -106,7 +106,7 @@ public:
   // GetOutput: Returns the current oscillator output
   //
   float GetOutput(void) {
-    waveTable waveTable = mWaveTables[mCurWaveTable];
+    waveTable waveTable = WaveTableOsc::mWaveTables[mCurWaveTable];
 
     // linear interpolation
     float temp = mPhasor * waveTable.waveTableLen;

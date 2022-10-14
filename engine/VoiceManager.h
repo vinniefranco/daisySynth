@@ -13,7 +13,7 @@ private:
   float midi_[127];
   float volume_;
   daisysp::DelayLine<float, 32> del_;
-  static const int number_of_voices_ = 1;
+  static const int number_of_voices_ = 4;
   Voice voices_[number_of_voices_];
   daisysp::Oscillator lfo_;
 

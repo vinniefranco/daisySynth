@@ -92,57 +92,6 @@ int fillTables(WaveTableOsc *osc, float *freqWaveRe, float *freqWaveIm,
   return numTables;
 }
 
-int fillTables(float *slot, float *freqWaveRe, float *freqWaveIm,
-               int numSamples) {
-  int idx;
-
-  // zero DC offset and Nyquist
-  freqWaveRe[0] = freqWaveIm[0] = 0.0;
-  freqWaveRe[numSamples >> 1] = freqWaveIm[numSamples >> 1] = 0.0;
-
-  // determine maxHarmonic, the highest non-zero harmonic in the wave
-  int maxHarmonic = numSamples >> 1;
-  const float minVal = 0.000001; // -120 dB
-  while ((fabs(freqWaveRe[maxHarmonic]) + fabs(freqWaveIm[maxHarmonic]) <
-          minVal) &&
-         maxHarmonic)
-    --maxHarmonic;
-
-  // calculate topFreq for the initial wavetable
-  // maximum non-aliasing playback rate is 1 / (2 * maxHarmonic), but we allow
-  // aliasing up to the point where the aliased harmonic would meet the next
-  // octave table, which is an additional 1/3
-  float topFreq = 2.0 / 3.0 / maxHarmonic;
-
-  // for subsquent tables, float topFreq and remove upper half of harmonics
-  float *ar = new float[numSamples];
-  float *ai = new float[numSamples];
-  float scale = 0.0;
-  int numTables = 0;
-  while (maxHarmonic) {
-    // fill the table in with the needed harmonics
-    for (idx = 0; idx < numSamples; idx++)
-      ar[idx] = ai[idx] = 0.0;
-    for (idx = 1; idx <= maxHarmonic; idx++) {
-      ar[idx] = freqWaveRe[idx];
-      ai[idx] = freqWaveIm[idx];
-      ar[numSamples - idx] = freqWaveRe[numSamples - idx];
-      ai[numSamples - idx] = freqWaveIm[numSamples - idx];
-    }
-
-    // make the wavetable
-    scale = makeWaveTable(osc, numSamples, ar, ai, scale, topFreq);
-    numTables++;
-
-    // prepare for next table
-    topFreq *= 2;
-    maxHarmonic >>= 1;
-  }
-  delete[] ar;
-  delete[] ai;
-  return numTables;
-}
-
 //
 // fillTables2:
 //
@@ -236,32 +185,6 @@ WaveTableOsc *sawOsc(void) {
   delete[] freqWaveIm;
   return osc;
 }
-
-//
-// example that builds a sawtooth oscillator via frequency domain
-//
-void sawOsc(float *slot) {
-  int tableLen = 2048; // to give full bandwidth from 20 Hz
-  int idx;
-  float *freqWaveRe = new float[tableLen];
-  float *freqWaveIm = new float[tableLen];
-
-  // make a sawtooth
-  for (idx = 0; idx < tableLen; idx++) {
-    freqWaveIm[idx] = 0.0;
-  }
-  freqWaveRe[0] = freqWaveRe[tableLen >> 1] = 0.0;
-  for (idx = 1; idx < (tableLen >> 1); idx++) {
-    freqWaveRe[idx] = 1.0 / idx;                   // sawtooth spectrum
-    freqWaveRe[tableLen - idx] = -freqWaveRe[idx]; // mirror
-  }
-
-  fillSlot(slot, freqWaveRe, freqWaveIm, tableLen);
-
-  delete[] freqWaveRe;
-  delete[] freqWaveIm;
-}
-
 //
 // example that creates an oscillator from an arbitrary time domain wave
 //
@@ -292,33 +215,6 @@ WaveTableOsc *waveOsc(float *waveSamples, int tableLen) {
 //
 float makeWaveTable(WaveTableOsc *osc, int len, float *ar, float *ai,
                     float scale, float topFreq) {
-  fft(len, ar, ai);
-
-  if (scale == 0.0) {
-    // calc normal
-    float max = 0;
-    for (int idx = 0; idx < len; idx++) {
-      float temp = fabs(ai[idx]);
-      if (max < temp)
-        max = temp;
-    }
-    scale = 1.0 / max * .999;
-  }
-
-  // normalize
-  float *wave = new float[len];
-  for (int idx = 0; idx < len; idx++)
-    wave[idx] = ai[idx] * scale;
-
-  if (osc->AddWaveTable(len, wave, topFreq))
-    scale = 0.0;
-
-  delete[] wave;
-  return scale;
-}
-
-float makeWaveTable(float *slot, int len, float *ar, float *ai, float scale,
-                    float topFreq) {
   fft(len, ar, ai);
 
   if (scale == 0.0) {
@@ -406,7 +302,7 @@ void fft(int N, float *ar, float *ai)
     LE *= 2;                 // (LE = 2^L)
     Ur = 1.0;
     Ui = 0.;
-    Wr = cos(daissp::PI M_PI / (float)LE1);
+    Wr = cos(M_PI / (float)LE1);
     Wi = -sin(M_PI / (float)LE1); // Cooley, Lewis, and Welch have "+" here
     for (j = 1; j <= LE1; j++) {
       for (i = j; i <= N; i += LE) { // butterfly
