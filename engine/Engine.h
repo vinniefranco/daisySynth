@@ -24,7 +24,7 @@ private:
   float last_cutoff_read = 0.0f;
   float last_res_read = 0.0f;
   float x = 0.8f;
-  float cutoff = 0.0f;
+  float cutoff = 0.9f;
   float res = 0.0f;
   uint16_t ticker = 0;
   TableEncoder e;

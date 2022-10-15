@@ -62,9 +62,6 @@ int main(void) {
   AdcChannelConfig adc_config[num_adc_channels];
   adc_config[0].InitSingle(daisy::seed::A4);
 
-  // Start Serial LOG
-  hw.StartLog();
-
   TimerHandle tim5;
   TimerHandle::Config tim_config;
 
@@ -138,7 +135,7 @@ int main(void) {
 
         case 90: {
           engine.voice_manager.setVolumeAttack(
-              daisysp::fmap((float)cc.value / 127.f, 0.01f, 4.f,
+              daisysp::fmap((float)cc.value / 127.f, 0.005f, 4.f,
                             daisysp::Mapping::LOG) *
               sample_rate);
           break;
@@ -164,7 +161,7 @@ int main(void) {
 
         case 100: {
           engine.voice_manager.setFilterAttack(
-              daisysp::fmap((float)cc.value / 127.f, 0.01f, 4.f,
+              daisysp::fmap((float)cc.value / 127.f, 0.005f, 4.f,
                             daisysp::Mapping::LOG) *
               sample_rate);
           break;
