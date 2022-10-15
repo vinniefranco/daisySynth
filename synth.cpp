@@ -2,6 +2,7 @@
 
 #include "engine/Engine.h"
 #include "engine/VoiceManager.h"
+#include <math.h>
 
 using namespace daisy;
 using namespace daisysp;
@@ -102,8 +103,7 @@ int main(void) {
         switch (cc.control_number) {
 
         case 1: {
-          engine.voice_manager.setFilterLFOAmount(((float)cc.value / 127.f) /
-                                                  2.f);
+          engine.voice_manager.setFilterLFOAmount(((float)cc.value / 127.f));
           break;
         }
 
@@ -169,7 +169,7 @@ int main(void) {
 
         case 101: {
           engine.voice_manager.setFilterDecay(
-              daisysp::fmap((float)cc.value / 127.f, 0.1f, 2.f) * sample_rate);
+              daisysp::fmap((float)cc.value / 127.f, 0.1f, 3.f) * sample_rate);
           break;
         }
 
@@ -200,6 +200,15 @@ int main(void) {
         engine.voice_manager.onNoteOff(note_msg.note, note_msg.velocity);
 
       } break;
+
+      case PitchBend: {
+        auto pitch_bend = msg.AsPitchBend();
+        float bend = (float)pitch_bend.value / 8192;
+        bend = powf(2, bend);
+
+        engine.voice_manager.SetPitchBend(bend);
+        break;
+      }
       default:
         break;
       }

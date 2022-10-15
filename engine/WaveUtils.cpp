@@ -149,12 +149,37 @@ void sawOsc(waveTable *table, int *n_tables, const int totalSlots) {
 
   // make a sawtooth
   for (idx = 0; idx < tableLen; idx++) {
-    freqWaveIm[idx] = 0.0;
+    freqWaveIm[idx] = 0.0f;
   }
-  freqWaveRe[0] = freqWaveRe[tableLen >> 1] = 0.0;
+  freqWaveRe[0] = freqWaveRe[tableLen >> 1] = 0.0f;
   for (idx = 1; idx < (tableLen >> 1); idx++) {
-    freqWaveRe[idx] = 1.0 / idx;                   // sawtooth spectrum
+    freqWaveRe[idx] = 1.0f / idx;                  // sawtooth spectrum
     freqWaveRe[tableLen - idx] = -freqWaveRe[idx]; // mirror
+  }
+
+  fillTables(table, freqWaveRe, freqWaveIm, tableLen, n_tables, totalSlots);
+
+  delete[] freqWaveRe;
+  delete[] freqWaveIm;
+}
+
+void squareOsc(waveTable *table, int *n_tables, const int totalSlots) {
+  int tableLen = 2048; // to give full bandwidth from 20 Hz
+  int idx;
+  float *freqWaveRe = new float[tableLen];
+  float *freqWaveIm = new float[tableLen];
+
+  // make a sawtooth
+  for (idx = 0; idx < tableLen; idx++) {
+    freqWaveIm[idx] = 0.0f;
+  }
+  freqWaveRe[0] = freqWaveRe[tableLen >> 1] = 0.0f;
+  for (int i = 0; i < tableLen; i++) {
+    if (i < tableLen / 2) {
+      freqWaveIm[i] = 1.0f;
+    } else {
+      freqWaveIm[i] = -1.f;
+    }
   }
 
   fillTables(table, freqWaveRe, freqWaveIm, tableLen, n_tables, totalSlots);

@@ -70,6 +70,7 @@ public:
 
   inline float GetCutoff() { return cutoff; }
 
+  inline void SetVol(float new_x) { x = new_x; }
   inline float GetVol() { return x; }
 
   inline float GetRes() { return res; }
@@ -156,7 +157,7 @@ public:
 
       display.Update();
 
-      voice_manager.setVolume(x);
+      // voice_manager.setVolume(x);
     }
 
     // last_cutoff_read = cut_reading;

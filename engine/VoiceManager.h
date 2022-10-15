@@ -12,7 +12,7 @@ private:
   daisysp::Compressor comp_;
   float midi_[127];
   float volume_;
-  static const int number_of_voices_ = 12;
+  static const int number_of_voices_ = 10;
   Voice voices_[number_of_voices_];
   daisysp::Oscillator lfo_;
 
@@ -58,6 +58,8 @@ public:
   inline void SetWavetable(waveTable *wt, int total_slots) {
     ForEachVoice(SetWavetable(wt, total_slots))
   }
+
+  inline void SetPitchBend(float value) { ForEachVoice(SetPitchBend(value)); }
 
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
 

@@ -7,7 +7,7 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
   uint32_t oldest = 0;
 
   for (int i = 0; i < number_of_voices_; i++) {
-    if (!voices_[i].isActive) {
+    if (!voices_[i].is_active) {
       free_voice = &(voices_[i]);
       free_voice->started_at = daisy::System::GetNow();
     } else {
@@ -40,7 +40,7 @@ void VoiceManager::onNoteOn(int midi_note, int velocity) {
   voice->reset();
   voice->setNoteNumber(midi_note, midi_[midi_note]);
   voice->velocity = velocity;
-  voice->isActive = true;
+  voice->is_active = true;
   voice->v_env.gate(true);
   voice->f_env.gate(true);
 }
@@ -49,7 +49,7 @@ void VoiceManager::onNoteOff(int midi_note, int velocity) {
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
 
-    if (voice.isActive && voice.note_number == midi_note) {
+    if (voice.is_active && voice.note_number == midi_note) {
       voice.v_env.gate(false);
       voice.f_env.gate(false);
     }
@@ -69,7 +69,7 @@ void VoiceManager::Process(float *left, float *right) {
   float lfo_value = lfo_.Process();
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
-    if (voice.isActive) {
+    if (voice.is_active) {
       voice.setLFOValue(lfo_value);
       output += voice.nextSample();
     }
@@ -77,12 +77,9 @@ void VoiceManager::Process(float *left, float *right) {
 
   float temp_vol = 1.f / (float)number_of_voices_;
   output = comp_.Process(output * temp_vol);
-  // output = chorus.Process(output);
 
   last_sample = output;
 
-  // *left = chorus.GetLeft();
-  // *right = chorus.GetRight();
   *left = output;
   *right = output;
 }

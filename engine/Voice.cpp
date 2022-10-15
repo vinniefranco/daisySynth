@@ -1,36 +1,28 @@
 #include "Voice.h"
 
 float Voice::nextSample() {
-  if (!isActive)
+  if (!is_active)
     return 0.0f;
 
-  float oscillatorOneOutput = osc0_.Process();
-  float oscillatorTwoOutput = osc1_.Process();
-  float oscillatorSum = (oscillatorOneOutput + oscillatorTwoOutput) * 0.5f;
+  float osc0_out = osc0_.Process();
+  float osc1_out = osc1_.Process();
+  float osc_sum = (osc0_out + osc1_out) * 0.5f;
 
-  float volumeEnvelopeValue = v_env.process();
-  float filterEnvelopeValue = f_env.process();
+  float v_env_value = v_env.process();
+  float f_env_value = f_env.process();
 
-  flt.setCutoffMod(filterEnvelopeValue * mFilterEnvelopeAmount +
-                   (mLFOValue * mFilterLFOAmount));
+  flt.setCutoffMod(f_env_value * f_env_amount + (lfo_value * f_lfo_amount));
 
   if (v_env.getState() == v_env.env_idle) {
     setFree();
     return 0.0f;
   }
 
-  float output =
-      flt.Process(oscillatorSum * volumeEnvelopeValue * velocity / 127.0);
-  // Quick hard clipping
-  if (output > 1.f)
-    output = 1.f;
-
-  if (output < -1.f)
-    output = -1.f;
+  float output = flt.Process(osc_sum * v_env_value * velocity / 127.0);
 
   return output;
 }
-void Voice::setFree() { isActive = false; }
+void Voice::setFree() { is_active = false; }
 void Voice::reset() {
   note_number = -1;
   velocity = 0;

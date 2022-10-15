@@ -24,5 +24,6 @@ float makeWaveTable(waveTable *table, int len, float *ar, float *ai,
                     const int totalslots);
 
 void sawOsc(waveTable *table, int *n_tables, const int totalslots);
+void squareOsc(waveTable *table, int *n_tables, const int totalslots);
 
 #endif
