@@ -23,24 +23,22 @@
 #ifndef WaveTableOsc_h
 #define WaveTableOsc_h
 
-#include "WaveUtils.h"
-
 #include "daisy_seed.h"
 
-static constexpr int numWaveTableSlots =
-    18; // simplify allocation with reasonable maximum
-static waveTable DSY_SDRAM_BSS saw_slot[numWaveTableSlots];
-static int saw_wt_count;
+#include "WaveUtils.h"
 
 class WaveTableOsc {
 public:
-  WaveTableOsc(void) { sawOsc(saw_slot, &saw_wt_count, numWaveTableSlots); }
-  ~WaveTableOsc(void) {
-    // for (int idx = 0; idx < numWaveTableSlots; idx++) {
-    //   float *temp = WaveTableOsc::mWaveTables[idx].waveTable;
-    //   if (temp != 0)
-    //     delete[] temp;
-    // }
+  int current_wt = 0; // current table, based on current frequency
+
+  WaveTableOsc(void) {}
+  ~WaveTableOsc(void) {}
+
+  void Init(float new_sample_rate) { sample_rate_ = new_sample_rate; }
+
+  void SetWavetable(waveTable *new_wt, int total_slots) {
+    wt = new_wt;
+    wt_slots = total_slots;
   }
 
   //
@@ -48,42 +46,32 @@ public:
   // and less than 1!)
   //
   void SetFrequency(float inc) {
-    mPhaseInc = inc;
+    m_phase_inc_ = inc;
 
     // update the current wave table selector
-    int curWaveTable = 0;
-    while ((mPhaseInc >= saw_slot[curWaveTable].topFreq) &&
-           (curWaveTable < (saw_wt_count - 1))) {
-      ++curWaveTable;
+    int wt_selector = 0;
+    while ((m_phase_inc_ >= wt[wt_selector].topFreq) &&
+           (current_wt < (wt_slots - 1))) {
+      ++wt_selector;
     }
-    mCurWaveTable = curWaveTable;
+    current_wt = wt_selector;
   }
 
-  void SetFreq(float inc) {
-    mPhaseInc = inc / 48000.0f;
-
-    // update the current wave table selector
-    int curWaveTable = 0;
-    while ((mPhaseInc >= saw_slot[curWaveTable].topFreq) &&
-           (curWaveTable < (saw_wt_count - 1))) {
-      ++curWaveTable;
-    }
-    mCurWaveTable = curWaveTable;
-  }
+  void SetFreq(float new_freq) { SetFrequency(new_freq / sample_rate_); }
 
   //
   // SetPhaseOffset: Phase offset for PWM, 0-1
   //
-  void SetPhaseOffset(float offset) { mPhaseOfs = offset; }
+  void SetPhaseOffset(float offset) { m_phase_offset_ = offset; }
 
   //
   // UpdatePhase: Call once per sample
   //
   void UpdatePhase(void) {
-    mPhasor += mPhaseInc;
+    m_phasor_ += m_phase_inc_;
 
-    if (mPhasor >= 1.0)
-      mPhasor -= 1.0;
+    if (m_phasor_ >= 1.0)
+      m_phasor_ -= 1.0;
   }
 
   //
@@ -98,14 +86,14 @@ public:
   // GetOutput: Returns the current oscillator output
   //
   float GetOutput(void) {
-    waveTable waveTable = saw_slot[mCurWaveTable];
+    waveTable *waveTable = &wt[current_wt];
 
     // linear interpolation
-    float temp = mPhasor * waveTable.waveTableLen;
+    float temp = m_phasor_ * waveTable->waveTableLen;
     int intPart = temp;
     float fracPart = temp - intPart;
-    float samp0 = waveTable.waveTable[intPart];
-    float samp1 = waveTable.waveTable[intPart + 1];
+    float samp0 = waveTable->waveTable[intPart];
+    float samp1 = waveTable->waveTable[intPart + 1];
     return samp0 + (samp1 - samp0) * fracPart;
   }
 
@@ -118,12 +106,12 @@ public:
   // returns the current oscillator output
   //
   float GetOutputMinusOffset() {
-    waveTable waveTable = saw_slot[mCurWaveTable];
-    int len = waveTable.waveTableLen;
-    float *wave = waveTable.waveTable;
+    waveTable *waveTable = &wt[current_wt];
+    int len = waveTable->waveTableLen;
+    float *wave = waveTable->waveTable;
 
     // linear
-    float temp = mPhasor * len;
+    float temp = m_phasor_ * len;
     int intPart = temp;
     float fracPart = temp - intPart;
     float samp0 = wave[intPart];
@@ -131,7 +119,7 @@ public:
     float samp = samp0 + (samp1 - samp0) * fracPart;
 
     // and linear again for the offset part
-    float offsetPhasor = mPhasor + mPhaseOfs;
+    float offsetPhasor = m_phasor_ + m_phase_offset_;
     if (offsetPhasor > 1.0)
       offsetPhasor -= 1.0;
     temp = offsetPhasor * len;
@@ -143,12 +131,13 @@ public:
   }
 
 protected:
-  float mPhasor = 0.0;   // phase accumulator
-  float mPhaseInc = 0.0; // phase increment
-  float mPhaseOfs = 0.5; // phase offset for PWM
+  float m_phasor_ = 0.0;       // phase accumulator
+  float m_phase_inc_ = 0.0;    // phase increment
+  float m_phase_offset_ = 0.5; // phase offset for PWM
+  float sample_rate_;
 
-  // array of wavetables
-  int mCurWaveTable = 0; // current table, based on current frequency
+  waveTable *wt;
+  int wt_slots = 0;
 };
 
 #endif

@@ -70,14 +70,13 @@ void VoiceManager::Process(float *left, float *right) {
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
     if (voice.isActive) {
-      // voice.setLFOValue(lfo_value);
-      voice.setLFOValue(0);
+      voice.setLFOValue(lfo_value);
       output += voice.nextSample();
     }
   }
 
   float temp_vol = 1.f / (float)number_of_voices_;
-  // output = comp_.Process(output * temp_vol);
+  output = comp_.Process(output * temp_vol);
   // output = chorus.Process(output);
 
   last_sample = output;

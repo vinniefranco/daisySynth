@@ -9,6 +9,22 @@ using namespace daisysp;
 DaisySeed hw;
 MidiUsbHandler midi;
 CpuLoadMeter load_meter;
+
+/**
+ * WAVETABLEs need to be setup globals in SDRAM and drilled down.
+ */
+static constexpr int max_slots = 18;
+static waveTable DSY_SDRAM_BSS saw_wt[max_slots];
+static int total_saw_slots = 0;
+
+void zeroFillWaveTable() {
+  for (int idx = 0; idx < max_slots; idx++) {
+    saw_wt[idx].topFreq = 0;
+    saw_wt[idx].waveTableLen = 0;
+    saw_wt[idx].waveTable = 0;
+  }
+}
+
 static Engine engine;
 
 void Tick(void *data) { engine.tick(); }
@@ -30,6 +46,11 @@ int main(void) {
   float sample_rate;
   hw.Configure();
   hw.Init();
+
+  // Populate SDRAM WaveTables
+  zeroFillWaveTable();
+
+  sawOsc(saw_wt, &total_saw_slots, max_slots);
   hw.SetAudioBlockSize(4); // number of samples handled per callback
   hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
@@ -40,9 +61,6 @@ int main(void) {
   // Init ADC
   AdcChannelConfig adc_config[num_adc_channels];
   adc_config[0].InitSingle(daisy::seed::A4);
-  adc_config[1].InitSingle(daisy::seed::A5);
-  hw.adc.Init(adc_config, num_adc_channels);
-  hw.adc.Start();
 
   // Start Serial LOG
   hw.StartLog();
@@ -62,6 +80,8 @@ int main(void) {
   // Initialize UI
   engine.Init(&hw, &load_meter, daisy::seed::D17, daisy::seed::D16,
               daisy::seed::D15, sample_rate);
+
+  engine.voice_manager.SetWavetable(saw_wt, total_saw_slots);
 
   MidiUsbHandler::Config midi_cfg;
   midi_cfg.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
@@ -126,7 +146,7 @@ int main(void) {
 
         case 91: {
           engine.voice_manager.setVolumeDecay(
-              daisysp::fmap((float)cc.value / 127.f, 0.1f, 2.f) * sample_rate);
+              daisysp::fmap((float)cc.value / 127.f, 0.1f, 3.f) * sample_rate);
           break;
         }
 

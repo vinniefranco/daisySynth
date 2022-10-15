@@ -12,8 +12,7 @@ private:
   daisysp::Compressor comp_;
   float midi_[127];
   float volume_;
-  daisysp::DelayLine<float, 32> del_;
-  static const int number_of_voices_ = 1;
+  static const int number_of_voices_ = 12;
   Voice voices_[number_of_voices_];
   daisysp::Oscillator lfo_;
 
@@ -32,7 +31,7 @@ public:
   void setSampleRate(float sample_rate) {
     for (int i = 0; i < number_of_voices_; i++) {
       Voice &voice = voices_[i];
-      voice.Init(sample_rate, WaveOsc::WAVE_SAW, 0.5f);
+      voice.Init(sample_rate, 0.5f);
     }
     chorus.Init(sample_rate);
     chorus.SetLfoDepth(0.5f);
@@ -54,6 +53,10 @@ public:
   for (int i = 0; i < number_of_voices_; i++) {                                \
     Voice &voice = voices_[i];                                                 \
     voice.expr;                                                                \
+  }
+
+  inline void SetWavetable(waveTable *wt, int total_slots) {
+    ForEachVoice(SetWavetable(wt, total_slots))
   }
 
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };

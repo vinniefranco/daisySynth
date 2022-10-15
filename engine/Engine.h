@@ -93,15 +93,15 @@ public:
       break;
     }
 
-    float cut_reading = hw->adc.GetFloat(0);
-    if (abs(cut_reading - last_cutoff_read) > 0.01f) {
-      cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
-    }
+    // float cut_reading = hw->adc.GetFloat(0);
+    // if (abs(cut_reading - last_cutoff_read) > 0.01f) {
+    //   cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
+    // }
 
-    float res_reading = hw->adc.GetFloat(1) - 0.01f;
-    if (abs(res_reading - last_res_read) > 0.01f) {
-      res = 0.9f * (res_reading - res) + res;
-    }
+    // float res_reading = hw->adc.GetFloat(1) - 0.01f;
+    // if (abs(res_reading - last_res_read) > 0.01f) {
+    //   res = 0.9f * (res_reading - res) + res;
+    // }
 
     if (ticker % 100 == 0) {
       const float avg_load = load_meter->GetAvgCpuLoad();
@@ -159,6 +159,6 @@ public:
       voice_manager.setVolume(x);
     }
 
-    last_cutoff_read = cut_reading;
+    // last_cutoff_read = cut_reading;
   }
 };

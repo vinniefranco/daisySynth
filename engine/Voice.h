@@ -5,18 +5,14 @@
 
 #include "ADSR.h"
 #include "EnvFilter.h"
-#include "WaveOsc.h"
 #include "WaveTableOsc.h"
 
 #include <math.h>
 
 class Voice {
 private:
-  // WaveOsc osc0_;
   WaveTableOsc osc0_;
-  WaveOsc osc1_;
-  // daisysp::Oscillator osc0_;
-  // daisysp::Oscillator osc1_;
+  WaveTableOsc osc1_;
   EnvFilter flt;
   daisysp::WhiteNoise noise_;
   ADSR v_env;
@@ -41,15 +37,9 @@ public:
         mOscMix(0.5f), mFilterLFOAmount(0.0f), mOscOnePitchAmount(0.0f),
         mOscTwoPitchAmount(0.0f), mLFOValue(0.0f), isActive(false){};
 
-  inline void Init(float new_sample_rate, const int8_t waveform,
-                   float osc_amp) {
-    // osc0_.Init(new_sample_rate);
-    // osc0_.SetWaveform(waveform);
-    // osc0_.SetAmp(osc_amp);
-
+  inline void Init(float new_sample_rate, float osc_amp) {
+    osc0_.Init(new_sample_rate);
     osc1_.Init(new_sample_rate);
-    osc1_.SetWaveform(waveform);
-    osc1_.SetAmp(osc_amp);
 
     v_env.setAttackRate(.1f * new_sample_rate);
     v_env.setDecayRate(.3f * new_sample_rate);
@@ -82,6 +72,10 @@ public:
     note_number = midi_note;
     osc0_.SetFreq(freq - detune);
     osc1_.SetFreq(freq + detune);
+  }
+  inline void SetWavetable(waveTable *wt, int total_slots) {
+    osc0_.SetWavetable(wt, total_slots);
+    osc1_.SetWavetable(wt, total_slots);
   }
   float nextSample();
   void setFree();

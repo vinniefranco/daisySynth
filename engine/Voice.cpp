@@ -6,8 +6,7 @@ float Voice::nextSample() {
 
   float oscillatorOneOutput = osc0_.Process();
   float oscillatorTwoOutput = osc1_.Process();
-  float oscillatorSum = oscillatorOneOutput + oscillatorTwoOutput;
-  oscillatorSum = oscillatorOneOutput;
+  float oscillatorSum = (oscillatorOneOutput + oscillatorTwoOutput) * 0.5f;
 
   float volumeEnvelopeValue = v_env.process();
   float filterEnvelopeValue = f_env.process();
@@ -35,8 +34,6 @@ void Voice::setFree() { isActive = false; }
 void Voice::reset() {
   note_number = -1;
   velocity = 0;
-  // osc0_.Reset();
-  osc1_.Reset();
   v_env.reset();
   f_env.reset();
   flt.reset();
