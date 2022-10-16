@@ -133,6 +133,20 @@ int main(void) {
           break;
         }
 
+        case 76: {
+          engine.voice_manager.setOsc0Pitch(
+              daisysp::fmap((float)cc.value / 127.f, 0.5f, 1.f));
+
+          break;
+        }
+
+        case 77: {
+          engine.voice_manager.setOscMix(
+              daisysp::fmap((float)cc.value / 127.f, 0.0f, 1.f));
+
+          break;
+        }
+
         case 90: {
           engine.voice_manager.setVolumeAttack(
               daisysp::fmap((float)cc.value / 127.f, 0.005f, 4.f,

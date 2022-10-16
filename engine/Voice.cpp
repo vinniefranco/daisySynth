@@ -6,7 +6,7 @@ float Voice::nextSample() {
 
   float osc0_out = osc0_.Process();
   float osc1_out = osc1_.Process();
-  float osc_sum = (osc0_out + osc1_out) * 0.5f;
+  float osc_sum = ((1 - m_osc_mix) * osc0_out) + (m_osc_mix * osc1_out);
 
   float v_env_value = v_env.process();
   float f_env_value = f_env.process();

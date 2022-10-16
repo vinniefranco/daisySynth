@@ -16,13 +16,13 @@ private:
   bool is_active;
   float bend = 1.0f;
   float detune = 0.1f;
+  float mOscOnePitchAmount;
+  float mOscTwoPitchAmount;
   float f_env_amount;
   float f_lfo_amount;
   float freq = 0.0f;
   float lfo_value;
-  float mOscMix;
-  float mOscOnePitchAmount;
-  float mOscTwoPitchAmount;
+  float m_osc_mix;
   int note_number;
   int velocity;
 
@@ -32,8 +32,8 @@ public:
   uint32_t started_at;
   Voice()
       : is_active(false), f_env_amount(0.0f), note_number(-1), velocity(0),
-        mOscMix(0.5f), f_lfo_amount(0.0f), mOscOnePitchAmount(0.0f),
-        mOscTwoPitchAmount(0.0f), lfo_value(0.0f){};
+        m_osc_mix(0.5f), f_lfo_amount(0.0f), mOscOnePitchAmount(1.0f),
+        mOscTwoPitchAmount(1.0f), lfo_value(0.0f){};
 
   inline void Init(float new_sample_rate, float osc_amp) {
     osc0_.Init(new_sample_rate);
@@ -61,17 +61,17 @@ public:
 
   inline void SetPitchBend(float amount) {
     bend = amount;
-    osc0_.SetFreq((freq - detune) * bend);
+    osc0_.SetFreq((freq - detune * mOscOnePitchAmount) * bend);
     osc1_.SetFreq((freq + detune) * bend);
   }
-  inline void setOscMix(float amount) { mOscMix = amount; }
+  inline void setOscMix(float amount) { m_osc_mix = amount; }
   inline void setDetune(float new_detune) { detune = new_detune; }
   inline void setLFOValue(float value) { lfo_value = value; }
   inline void setNoteNumber(int midi_note, float new_freq) {
     note_number = midi_note;
     freq = new_freq;
-    osc0_.SetFreq((freq - detune) * bend);
-    osc1_.SetFreq((freq + detune) * bend);
+    osc0_.SetFreq((freq * mOscOnePitchAmount) * bend);
+    osc1_.SetFreq((freq * mOscTwoPitchAmount + detune) * bend);
   }
   inline void SetWavetable(waveTable *wt, int total_slots) {
     osc0_.SetWavetable(wt, total_slots);

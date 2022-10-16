@@ -63,6 +63,16 @@ public:
 
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
 
+  inline void setOscMix(float value) { ForEachVoice(setOscMix(value)); }
+
+  inline void setOsc0Pitch(float value) {
+    ForEachVoice(setOscOnePitchAmount(value));
+  }
+
+  inline void setOsc1Pitch(float value) {
+    ForEachVoice(setOscTwoPitchAmount(value));
+  }
+
   inline void setVolumeAttack(float value) {
     ForEachVoice(v_env.setAttackRate(value));
   }
