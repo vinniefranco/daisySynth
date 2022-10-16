@@ -12,7 +12,7 @@ private:
   daisysp::Compressor comp_;
   float midi_[127];
   float volume_;
-  static const int number_of_voices_ = 10;
+  static const int number_of_voices_ = 16;
   Voice voices_[number_of_voices_];
   daisysp::Oscillator lfo_;
 

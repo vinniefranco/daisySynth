@@ -2,31 +2,30 @@
 
 Voice *VoiceManager::findFreeVoice(int midi_note) {
   Voice *free_voice = NULL;
-  Voice *same_note = NULL;
   Voice *oldest_voice = NULL;
   uint32_t oldest = 0;
 
   for (int i = 0; i < number_of_voices_; i++) {
-    if (!voices_[i].is_active) {
+    // Replay the same note.
+    if (voices_[i].note_number == midi_note) {
       free_voice = &(voices_[i]);
       free_voice->started_at = daisy::System::GetNow();
     } else {
-      if (voices_[i].note_number == midi_note) {
-        same_note = &(voices_[i]);
-      } else if (voices_[i].started_at > oldest) {
-        oldest = voices_[i].started_at;
-        oldest_voice = &(voices_[i]);
+      if (!voices_[i].is_active) {
+        free_voice = &(voices_[i]);
+        free_voice->started_at = daisy::System::GetNow();
+      } else {
+        if (voices_[i].started_at > oldest) {
+          oldest = voices_[i].started_at;
+          oldest_voice = &(voices_[i]);
+        }
       }
     }
   }
-  if (free_voice == NULL) {
-    if (same_note == NULL) {
-      oldest_voice->started_at = daisy::System::GetNow();
-      return oldest_voice;
-    } else {
-      same_note->started_at = daisy::System::GetNow();
-      return same_note;
-    }
+  if (free_voice == NULL && oldest_voice != NULL) {
+    oldest_voice->started_at = daisy::System::GetNow();
+    oldest_voice->ResetPhasor();
+    return oldest_voice;
   }
 
   return free_voice;
@@ -37,7 +36,11 @@ void VoiceManager::onNoteOn(int midi_note, int velocity) {
   if (!voice) {
     return;
   }
-  voice->reset();
+
+  if (voice->note_number != midi_note) {
+    voice->reset();
+    voice->ResetPhasor();
+  }
   voice->setNoteNumber(midi_note, midi_[midi_note]);
   voice->velocity = velocity;
   voice->is_active = true;
@@ -49,7 +52,7 @@ void VoiceManager::onNoteOff(int midi_note, int velocity) {
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
 
-    if (voice.is_active && voice.note_number == midi_note) {
+    if (voice.note_number == midi_note) {
       voice.v_env.gate(false);
       voice.f_env.gate(false);
     }

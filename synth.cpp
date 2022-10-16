@@ -211,6 +211,7 @@ int main(void) {
       case NoteOff: {
         auto note_msg = msg.AsNoteOff();
 
+        engine.SetVol((float)note_msg.note);
         engine.voice_manager.onNoteOff(note_msg.note, note_msg.velocity);
 
       } break;

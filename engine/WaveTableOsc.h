@@ -57,6 +57,8 @@ public:
     current_wt = wt_selector;
   }
 
+  void ResetPhasor() { m_phasor_ = 0.0f; }
+
   void SetFreq(float new_freq) { SetFrequency(new_freq / sample_rate_); }
 
   //
@@ -131,9 +133,9 @@ public:
   }
 
 protected:
-  float m_phasor_ = 0.0;       // phase accumulator
-  float m_phase_inc_ = 0.0;    // phase increment
-  float m_phase_offset_ = 0.5; // phase offset for PWM
+  float m_phasor_ = 0.0f;       // phase accumulator
+  float m_phase_inc_ = 0.0f;    // phase increment
+  float m_phase_offset_ = 0.5f; // phase offset for PWM
   float sample_rate_;
 
   waveTable *wt;

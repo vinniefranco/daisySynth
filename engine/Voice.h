@@ -23,11 +23,11 @@ private:
   float freq = 0.0f;
   float lfo_value;
   float m_osc_mix;
-  int note_number;
   int velocity;
 
 public:
   friend class VoiceManager;
+  int note_number;
   int panning = 3;
   uint32_t started_at;
   Voice()
@@ -52,6 +52,10 @@ public:
 
   inline void setFilterEnvelopeAmount(float amount) { f_env_amount = amount; }
   inline void setFilterLFOAmount(float amount) { f_lfo_amount = amount; }
+  inline void ResetPhasor() {
+    osc0_.ResetPhasor();
+    osc1_.ResetPhasor();
+  }
   inline void setOscOnePitchAmount(float amount) {
     mOscOnePitchAmount = amount;
   }
