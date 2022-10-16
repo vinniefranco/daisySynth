@@ -64,7 +64,16 @@ public:
     daisy::System::Delay(1000);
   }
 
-  inline void SetCutoff(int midi_value) { cutoff = midiToFloat(midi_value); }
+  inline void SetCutoff(float value) {
+    float cut_reading = value;
+    if (value > 0.01f) {
+      cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
+
+    } else {
+
+      cutoff = 0.0f;
+    }
+  }
 
   inline void SetRes(int midi_value) { res = midiToFloat(midi_value) - 0.1f; }
 
@@ -159,7 +168,5 @@ public:
 
       // voice_manager.setVolume(x);
     }
-
-    // last_cutoff_read = cut_reading;
   }
 };

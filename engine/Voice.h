@@ -71,11 +71,28 @@ public:
   inline void setOscMix(float amount) { m_osc_mix = amount; }
   inline void setDetune(float new_detune) { detune = new_detune; }
   inline void setLFOValue(float value) { lfo_value = value; }
-  inline void setNoteNumber(int midi_note, float new_freq) {
+  inline void clearNoteNumber(int midi_note) {
+    if (note_number == midi_note) {
+      v_env.gate(false);
+      f_env.gate(false);
+    }
+  }
+  inline void setNoteNumber(int midi_note, float new_freq, int new_velocity) {
+    if (note_number != midi_note) {
+      reset();
+      ResetPhasor();
+    }
+
     note_number = midi_note;
     freq = new_freq;
+
     osc0_.SetFreq((freq * mOscOnePitchAmount) * bend);
     osc1_.SetFreq((freq * mOscTwoPitchAmount + detune) * bend);
+
+    velocity = new_velocity;
+    is_active = true;
+    v_env.gate(true);
+    f_env.gate(true);
   }
   inline void SetWavetable(waveTable *wt, int total_slots) {
     osc0_.SetWavetable(wt, total_slots);

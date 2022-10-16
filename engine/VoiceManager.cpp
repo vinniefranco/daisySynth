@@ -11,9 +11,11 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
       free_voice = &(voices_[i]);
       free_voice->started_at = daisy::System::GetNow();
     } else {
+      // Find an available voice
       if (!voices_[i].is_active) {
         free_voice = &(voices_[i]);
         free_voice->started_at = daisy::System::GetNow();
+        // Alternatively, find the oldest playing voice
       } else {
         if (voices_[i].started_at > oldest) {
           oldest = voices_[i].started_at;
@@ -29,42 +31,6 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
   }
 
   return free_voice;
-}
-
-void VoiceManager::onNoteOn(int midi_note, int velocity) {
-  Voice *voice = findFreeVoice(midi_note);
-  if (!voice) {
-    return;
-  }
-
-  if (voice->note_number != midi_note) {
-    voice->reset();
-    voice->ResetPhasor();
-  }
-  voice->setNoteNumber(midi_note, midi_[midi_note]);
-  voice->velocity = velocity;
-  voice->is_active = true;
-  voice->v_env.gate(true);
-  voice->f_env.gate(true);
-}
-void VoiceManager::onNoteOff(int midi_note, int velocity) {
-  // Find the voice with given note number
-  for (int i = 0; i < number_of_voices_; i++) {
-    Voice &voice = voices_[i];
-
-    if (voice.note_number == midi_note) {
-      voice.v_env.gate(false);
-      voice.f_env.gate(false);
-    }
-  }
-}
-
-void VoiceManager::setFilterCutoff(float cutoff) {
-  ForEachVoice(flt.setCutoff(cutoff));
-}
-
-void VoiceManager::setFilterResonance(float resonance) {
-  ForEachVoice(flt.setResonance(resonance));
 }
 
 void VoiceManager::Process(float *left, float *right) {

@@ -108,7 +108,20 @@ int main(void) {
         }
 
         case 70: {
-          engine.SetCutoff(cc.value);
+
+          if (cc.value == 0) {
+            engine.SetCutoff(0.0f);
+
+          } else {
+            float new_val = cc.value / 127.f;
+
+            if (new_val > 0.001f) {
+              new_val =
+                  daisysp::fmap(new_val, 0.01f, 1.f, daisysp::Mapping::LOG);
+              engine.SetCutoff(new_val);
+            }
+          }
+
           break;
         }
 

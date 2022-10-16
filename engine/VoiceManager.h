@@ -2,7 +2,6 @@
 #define __VOICEMANAGER__
 #pragma once
 
-#include "Noise/whitenoise.h"
 #include "sys/system.h"
 
 #include "Voice.h"
@@ -20,23 +19,13 @@ private:
 
 public:
   float last_sample = 0.0f;
-  enum EnvStage { ATTACK, DECAY, SUSTAIN, RELEASE };
-  void onNoteOn(int note_number, int velocity);
-  void onNoteOff(int note_number, int velocity);
-  void setFilterCutoff(float cutoff);
-  daisysp::Chorus chorus;
   inline void setVolume(float new_vol) { volume_ = new_vol; };
-  void setFilterResonance(float resonance);
   void Process(float *left, float *right);
   void setSampleRate(float sample_rate) {
     for (int i = 0; i < number_of_voices_; i++) {
       Voice &voice = voices_[i];
       voice.Init(sample_rate, 0.5f);
     }
-    chorus.Init(sample_rate);
-    chorus.SetLfoDepth(0.5f);
-    chorus.SetDelay(1);
-    chorus.SetFeedback(0.5f);
     comp_.Init(sample_rate);
     comp_.AutoMakeup(false);
     comp_.SetMakeup(14.0f);
@@ -53,6 +42,26 @@ public:
   for (int i = 0; i < number_of_voices_; i++) {                                \
     Voice &voice = voices_[i];                                                 \
     voice.expr;                                                                \
+  }
+
+  inline void onNoteOn(int midi_note, int velocity) {
+    Voice *voice = findFreeVoice(midi_note);
+    if (!voice) {
+      return;
+    }
+
+    voice->setNoteNumber(midi_note, midi_[midi_note], velocity);
+  }
+  inline void onNoteOff(int midi_note, int velocity) {
+    ForEachVoice(clearNoteNumber(midi_note));
+  }
+
+  inline void setFilterCutoff(float cutoff) {
+    ForEachVoice(flt.setCutoff(cutoff));
+  }
+
+  inline void setFilterResonance(float resonance) {
+    ForEachVoice(flt.setResonance(resonance));
   }
 
   inline void SetWavetable(waveTable *wt, int total_slots) {

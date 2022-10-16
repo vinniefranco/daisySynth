@@ -1,9 +1,6 @@
 #include "Voice.h"
 
 float Voice::nextSample() {
-  if (!is_active)
-    return 0.0f;
-
   float osc0_out = osc0_.Process();
   float osc1_out = osc1_.Process();
   float osc_sum = ((1 - m_osc_mix) * osc0_out) + (m_osc_mix * osc1_out);
