@@ -68,9 +68,7 @@ public:
     float cut_reading = value;
     if (value > 0.01f) {
       cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
-
     } else {
-
       cutoff = 0.0f;
     }
   }
