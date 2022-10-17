@@ -15,14 +15,18 @@ CpuLoadMeter load_meter;
  * WAVETABLEs need to be setup globals in SDRAM and drilled down.
  */
 static constexpr int max_slots = 18;
+
 static waveTable DSY_SDRAM_BSS saw_wt[max_slots];
 static int total_saw_slots = 0;
 
-void zeroFillWaveTable() {
+static waveTable DSY_SDRAM_BSS sqr_wt[max_slots];
+static int total_sqr_slots = 0;
+
+void zeroFillWaveTables() {
   for (int idx = 0; idx < max_slots; idx++) {
-    saw_wt[idx].topFreq = 0;
-    saw_wt[idx].waveTableLen = 0;
-    saw_wt[idx].waveTable = 0;
+    sqr_wt[idx].topFreq = saw_wt[idx].topFreq = 0;
+    sqr_wt[idx].waveTableLen = saw_wt[idx].waveTableLen = 0;
+    sqr_wt[idx].waveTable = saw_wt[idx].waveTable = 0;
   }
 }
 
@@ -49,9 +53,10 @@ int main(void) {
   hw.Init();
 
   // Populate SDRAM WaveTables
-  zeroFillWaveTable();
-
+  zeroFillWaveTables();
   sawOsc(saw_wt, &total_saw_slots, max_slots);
+  sqrOsc(sqr_wt, &total_sqr_slots, max_slots);
+
   hw.SetAudioBlockSize(4); // number of samples handled per callback
   hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
@@ -79,7 +84,8 @@ int main(void) {
   engine.Init(&hw, &load_meter, daisy::seed::D17, daisy::seed::D16,
               daisy::seed::D15, sample_rate);
 
-  engine.voice_manager.SetWavetable(saw_wt, total_saw_slots);
+  engine.voice_manager.SetWavetable(saw_wt, total_saw_slots, sqr_wt,
+                                    total_sqr_slots);
 
   MidiUsbHandler::Config midi_cfg;
   midi_cfg.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
