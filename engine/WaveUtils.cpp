@@ -163,7 +163,7 @@ void sawOsc(waveTable *table, int *n_tables, const int totalSlots) {
   delete[] freqWaveIm;
 }
 
-void squareOsc(waveTable *table, int *n_tables, const int totalSlots) {
+void sqrOsc(waveTable *table, int *n_tables, const int totalSlots) {
   int tableLen = 2048; // to give full bandwidth from 20 Hz
   int idx;
   float *freqWaveRe = new float[tableLen];
@@ -171,16 +171,15 @@ void squareOsc(waveTable *table, int *n_tables, const int totalSlots) {
 
   // make a sawtooth
   for (idx = 0; idx < tableLen; idx++) {
-    freqWaveIm[idx] = 0.0f;
-  }
-  freqWaveRe[0] = freqWaveRe[tableLen >> 1] = 0.0f;
-  for (int i = 0; i < tableLen; i++) {
-    if (i < tableLen / 2) {
-      freqWaveIm[i] = 1.0f;
+    if (idx < tableLen / 2) {
+      freqWaveIm[idx] = 1.0f;
     } else {
-      freqWaveIm[i] = -1.f;
+      freqWaveIm[idx] = -1.0f;
     }
+
+    freqWaveRe[idx] = 0.0f;
   }
+  fft(tableLen, freqWaveRe, freqWaveIm);
 
   fillTables(table, freqWaveRe, freqWaveIm, tableLen, n_tables, totalSlots);
 

@@ -29,11 +29,11 @@ public:
   friend class VoiceManager;
   int note_number;
   int panning = 3;
-  uint32_t started_at;
+  uint32_t age;
   Voice()
       : is_active(false), f_env_amount(0.0f), note_number(-1), velocity(0),
         m_osc_mix(0.5f), f_lfo_amount(0.0f), mOscOnePitchAmount(1.0f),
-        mOscTwoPitchAmount(1.0f), lfo_value(0.0f){};
+        mOscTwoPitchAmount(1.0f), lfo_value(0.0f), age(0){};
 
   inline void Init(float new_sample_rate, float osc_amp) {
     osc0_.Init(new_sample_rate);

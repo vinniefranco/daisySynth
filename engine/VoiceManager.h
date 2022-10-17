@@ -50,6 +50,8 @@ public:
       return;
     }
 
+    ForEachVoice(age += 1);
+
     voice->setNoteNumber(midi_note, midi_[midi_note], velocity);
   }
   inline void onNoteOff(int midi_note, int velocity) {

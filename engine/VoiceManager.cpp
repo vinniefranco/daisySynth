@@ -9,23 +9,23 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
     // Replay the same note.
     if (voices_[i].note_number == midi_note) {
       free_voice = &(voices_[i]);
-      free_voice->started_at = daisy::System::GetNow();
+      free_voice->age = 0;
     } else {
       // Find an available voice
       if (!voices_[i].is_active) {
         free_voice = &(voices_[i]);
-        free_voice->started_at = daisy::System::GetNow();
+        free_voice->age = 0;
         // Alternatively, find the oldest playing voice
       } else {
-        if (voices_[i].started_at > oldest) {
-          oldest = voices_[i].started_at;
+        if (voices_[i].age > oldest) {
+          oldest = voices_[i].age;
           oldest_voice = &(voices_[i]);
         }
       }
     }
   }
   if (free_voice == NULL && oldest_voice != NULL) {
-    oldest_voice->started_at = daisy::System::GetNow();
+    oldest_voice->age = 0;
     oldest_voice->ResetPhasor();
     return oldest_voice;
   }
