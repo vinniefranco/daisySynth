@@ -6,8 +6,12 @@
 //
 //
 
-#ifndef WaveUtils_h
-#define WaveUtils_h
+#ifndef __WAVEUTILS__
+#define __WAVEUTILS__
+
+#pragma once
+
+#include <math.h>
 
 struct waveTable {
   float topFreq;

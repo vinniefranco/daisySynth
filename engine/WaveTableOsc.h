@@ -20,8 +20,8 @@
 //  purposes, free or commercial.
 //
 
-#ifndef WaveTableOsc_h
-#define WaveTableOsc_h
+#ifndef __WAVETABLE_OSC__
+#define __WAVETABLE_OSC__
 
 #include "daisy_seed.h"
 
@@ -39,6 +39,7 @@ public:
   void SetWavetable(waveTable *new_wt, int total_slots) {
     wt = new_wt;
     wt_slots = total_slots;
+    m_phasor_ = 0.0f;
   }
 
   //

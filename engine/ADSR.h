@@ -23,8 +23,9 @@
 //  resulted in exp returning 1 in calcCoef
 //
 
-#ifndef ADRS_h
-#define ADRS_h
+#ifndef __ADSR__
+#define __ADRS__
+#pragma once
 
 #include <math.h>
 
