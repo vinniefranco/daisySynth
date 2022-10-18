@@ -44,13 +44,7 @@ public:
   void SetTargetRatioDR(float targetRatio);
   void Reset(void);
 
-  enum envState {
-    env_idle = 0,
-    env_attack,
-    env_decay,
-    env_sustain,
-    env_release
-  };
+  enum envState { IDLE = 0, ATTACK, DECAY, SUSTAIN, RELEASE };
 
 protected:
   int state;
@@ -73,29 +67,29 @@ protected:
 
 inline float ADSR::Process() {
   switch (state) {
-  case env_idle:
+  case IDLE:
     break;
-  case env_attack:
+  case ATTACK:
     output = attackBase + output * attackCoef;
     if (output >= 1.0) {
       output = 1.0;
-      state = env_decay;
+      state = DECAY;
     }
     break;
-  case env_decay:
+  case DECAY:
     output = decayBase + output * decayCoef;
     if (output <= sustainLevel) {
       output = sustainLevel;
-      state = env_sustain;
+      state = SUSTAIN;
     }
     break;
-  case env_sustain:
+  case SUSTAIN:
     break;
-  case env_release:
+  case RELEASE:
     output = releaseBase + output * releaseCoef;
     if (output <= 0.0) {
       output = 0.0;
-      state = env_idle;
+      state = IDLE;
     }
   }
   return output;
@@ -103,15 +97,15 @@ inline float ADSR::Process() {
 
 inline void ADSR::Gate(int gate) {
   if (gate)
-    state = env_attack;
-  else if (state != env_idle)
-    state = env_release;
+    state = ATTACK;
+  else if (state != IDLE)
+    state = RELEASE;
 }
 
 inline int ADSR::GetState() { return state; }
 
 inline void ADSR::Reset() {
-  state = env_idle;
+  state = IDLE;
   output = 0.0;
 }
 
