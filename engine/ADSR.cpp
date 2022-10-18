@@ -27,59 +27,59 @@
 #include <math.h>
 
 ADSR::ADSR(void) {
-  reset();
-  setAttackRate(0);
-  setDecayRate(0);
-  setReleaseRate(0);
-  setSustainLevel(1.0);
-  setTargetRatioA(0.3);
-  setTargetRatioDR(0.0001);
+  Reset();
+  SetAttackRate(0);
+  SetDecayRate(0);
+  SetReleaseRate(0);
+  SetSustainLevel(1.0);
+  SetTargetRatioA(0.3);
+  SetTargetRatioDR(0.0001);
 }
 
 ADSR::~ADSR(void) {}
 
-void ADSR::setAttackRate(float rate) {
+void ADSR::SetAttackRate(float rate) {
   attackRate = rate;
-  attackCoef = calcCoef(rate, targetRatioA);
+  attackCoef = CalcCoef(rate, targetRatioA);
   attackBase = (1.0 + targetRatioA) * (1.0 - attackCoef);
 }
 
-void ADSR::setDecayRate(float rate) {
+void ADSR::SetDecayRate(float rate) {
   decayRate = rate;
-  decayCoef = calcCoef(rate, targetRatioDR);
+  decayCoef = CalcCoef(rate, targetRatioDR);
   decayBase = (sustainLevel - targetRatioDR) * (1.0 - decayCoef);
 }
 
-void ADSR::setReleaseRate(float rate) {
+void ADSR::SetReleaseRate(float rate) {
   releaseRate = rate;
-  releaseCoef = calcCoef(rate, targetRatioDR);
+  releaseCoef = CalcCoef(rate, targetRatioDR);
   releaseBase = -targetRatioDR * (1.0 - releaseCoef);
 }
 
-float ADSR::calcCoef(float rate, float targetRatio) {
+float ADSR::CalcCoef(float rate, float targetRatio) {
   return (rate <= 0) ? 0.0
                      : exp(-log((1.0 + targetRatio) / targetRatio) / rate);
 }
 
-void ADSR::setSustainLevel(float level) {
+void ADSR::SetSustainLevel(float level) {
   sustainLevel = level;
   decayBase = (sustainLevel - targetRatioDR) * (1.0 - decayCoef);
 }
 
-void ADSR::setTargetRatioA(float targetRatio) {
+void ADSR::SetTargetRatioA(float targetRatio) {
   if (targetRatio < 0.000000001)
     targetRatio = 0.000000001; // -180 dB
   targetRatioA = targetRatio;
-  attackCoef = calcCoef(attackRate, targetRatioA);
+  attackCoef = CalcCoef(attackRate, targetRatioA);
   attackBase = (1.0 + targetRatioA) * (1.0 - attackCoef);
 }
 
-void ADSR::setTargetRatioDR(float targetRatio) {
+void ADSR::SetTargetRatioDR(float targetRatio) {
   if (targetRatio < 0.000000001)
     targetRatio = 0.000000001; // -180 dB
   targetRatioDR = targetRatio;
-  decayCoef = calcCoef(decayRate, targetRatioDR);
-  releaseCoef = calcCoef(releaseRate, targetRatioDR);
+  decayCoef = CalcCoef(decayRate, targetRatioDR);
+  releaseCoef = CalcCoef(releaseRate, targetRatioDR);
   decayBase = (sustainLevel - targetRatioDR) * (1.0 - decayCoef);
   releaseBase = -targetRatioDR * (1.0 - releaseCoef);
 }

@@ -31,35 +31,35 @@ public:
   int panning = 3;
   uint32_t age;
   Voice()
-      : is_active(false), f_env_amount(0.0f), note_number(-1), velocity(0),
-        m_osc_mix(0.5f), f_lfo_amount(0.0f), mOscOnePitchAmount(1.0f),
-        mOscTwoPitchAmount(1.0f), lfo_value(0.0f), age(0){};
+      : is_active(false), mOscOnePitchAmount(1.0f), mOscTwoPitchAmount(1.0f),
+        f_env_amount(0.0f), m_osc_mix(0.5f), velocity(0), f_lfo_amount(0.0f),
+        lfo_value(0.0f), note_number(-1), age(0){};
 
   inline void Init(float new_sample_rate, float osc_amp) {
     osc0_.Init(new_sample_rate);
     osc1_.Init(new_sample_rate);
 
-    v_env.setAttackRate(.1f * new_sample_rate);
-    v_env.setDecayRate(.3f * new_sample_rate);
-    v_env.setSustainLevel(.7f);
-    v_env.setReleaseRate(2.7f * new_sample_rate);
+    v_env.SetAttackRate(.1f * new_sample_rate);
+    v_env.SetDecayRate(.3f * new_sample_rate);
+    v_env.SetSustainLevel(.7f);
+    v_env.SetReleaseRate(2.7f * new_sample_rate);
 
-    f_env.setAttackRate(.1f * new_sample_rate);
-    f_env.setDecayRate(.3f * new_sample_rate);
-    f_env.setSustainLevel(.7f);
-    f_env.setReleaseRate(2.7f * new_sample_rate);
+    f_env.SetAttackRate(.1f * new_sample_rate);
+    f_env.SetDecayRate(.3f * new_sample_rate);
+    f_env.SetSustainLevel(.7f);
+    f_env.SetReleaseRate(2.7f * new_sample_rate);
   }
 
-  inline void setFilterEnvelopeAmount(float amount) { f_env_amount = amount; }
-  inline void setFilterLFOAmount(float amount) { f_lfo_amount = amount; }
+  inline void SetFilterEnvelopeAmount(float amount) { f_env_amount = amount; }
+  inline void SetFilterLFOAmount(float amount) { f_lfo_amount = amount; }
   inline void ResetPhasor() {
     osc0_.ResetPhasor();
     osc1_.ResetPhasor();
   }
-  inline void setOscOnePitchAmount(float amount) {
+  inline void SetOscOnePitchAmount(float amount) {
     mOscOnePitchAmount = amount;
   }
-  inline void setOscTwoPitchAmount(float amount) {
+  inline void SetOscTwoPitchAmount(float amount) {
     mOscTwoPitchAmount = amount;
   }
 
@@ -68,18 +68,18 @@ public:
     osc0_.SetFreq((freq - detune * mOscOnePitchAmount) * bend);
     osc1_.SetFreq((freq + detune) * bend);
   }
-  inline void setOscMix(float amount) { m_osc_mix = amount; }
-  inline void setDetune(float new_detune) { detune = new_detune; }
-  inline void setLFOValue(float value) { lfo_value = value; }
-  inline void clearNoteNumber(int midi_note) {
+  inline void SetOscMix(float amount) { m_osc_mix = amount; }
+  inline void SetDetune(float new_detune) { detune = new_detune; }
+  inline void SetLFOValue(float value) { lfo_value = value; }
+  inline void ClearNoteNumber(int midi_note) {
     if (note_number == midi_note) {
-      v_env.gate(false);
-      f_env.gate(false);
+      v_env.Gate(false);
+      f_env.Gate(false);
     }
   }
-  inline void setNoteNumber(int midi_note, float new_freq, int new_velocity) {
+  inline void SetNoteNumber(int midi_note, float new_freq, int new_velocity) {
     if (note_number != midi_note) {
-      reset();
+      Reset();
       ResetPhasor();
     }
 
@@ -91,15 +91,15 @@ public:
 
     velocity = new_velocity;
     is_active = true;
-    v_env.gate(true);
-    f_env.gate(true);
+    v_env.Gate(true);
+    f_env.Gate(true);
   }
   inline void SetWavetable(waveTable *saw, int saw_slots, waveTable *sqr,
                            int sqr_slots) {
     osc0_.SetWavetable(saw, saw_slots);
     osc1_.SetWavetable(sqr, sqr_slots);
   }
-  float nextSample();
-  void setFree();
-  void reset();
+  float Process();
+  void SetFree();
+  void Reset();
 };

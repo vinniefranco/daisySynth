@@ -23,8 +23,8 @@
 //  resulted in exp returning 1 in calcCoef
 //
 
-#ifndef FADRS_h
-#define FADRS_h
+#ifndef ADRS_h
+#define ADRS_h
 
 #include <math.h>
 
@@ -32,17 +32,17 @@ class ADSR {
 public:
   ADSR(void);
   ~ADSR(void);
-  float process(void);
-  float getOutput(void);
-  int getState(void);
-  void gate(int on);
-  void setAttackRate(float rate);
-  void setDecayRate(float rate);
-  void setReleaseRate(float rate);
-  void setSustainLevel(float level);
-  void setTargetRatioA(float targetRatio);
-  void setTargetRatioDR(float targetRatio);
-  void reset(void);
+  float Process(void);
+  float GetOutput(void);
+  int GetState(void);
+  void Gate(int on);
+  void SetAttackRate(float rate);
+  void SetDecayRate(float rate);
+  void SetReleaseRate(float rate);
+  void SetSustainLevel(float level);
+  void SetTargetRatioA(float targetRatio);
+  void SetTargetRatioDR(float targetRatio);
+  void Reset(void);
 
   enum envState {
     env_idle = 0,
@@ -68,10 +68,10 @@ protected:
   float decayBase;
   float releaseBase;
 
-  float calcCoef(float rate, float targetRatio);
+  float CalcCoef(float rate, float targetRatio);
 };
 
-inline float ADSR::process() {
+inline float ADSR::Process() {
   switch (state) {
   case env_idle:
     break;
@@ -101,20 +101,20 @@ inline float ADSR::process() {
   return output;
 }
 
-inline void ADSR::gate(int gate) {
+inline void ADSR::Gate(int gate) {
   if (gate)
     state = env_attack;
   else if (state != env_idle)
     state = env_release;
 }
 
-inline int ADSR::getState() { return state; }
+inline int ADSR::GetState() { return state; }
 
-inline void ADSR::reset() {
+inline void ADSR::Reset() {
   state = env_idle;
   output = 0.0;
 }
 
-inline float ADSR::getOutput() { return output; }
+inline float ADSR::GetOutput() { return output; }
 
 #endif

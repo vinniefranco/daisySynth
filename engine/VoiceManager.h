@@ -52,10 +52,10 @@ public:
 
     ForEachVoice(age += 1);
 
-    voice->setNoteNumber(midi_note, midi_[midi_note], velocity);
+    voice->SetNoteNumber(midi_note, midi_[midi_note], velocity);
   }
   inline void onNoteOff(int midi_note, int velocity) {
-    ForEachVoice(clearNoteNumber(midi_note));
+    ForEachVoice(ClearNoteNumber(midi_note));
   }
 
   inline void setFilterCutoff(float cutoff) {
@@ -75,56 +75,56 @@ public:
 
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
 
-  inline void setOscMix(float value) { ForEachVoice(setOscMix(value)); }
+  inline void setOscMix(float value) { ForEachVoice(SetOscMix(value)); }
 
   inline void setOsc0Pitch(float value) {
-    ForEachVoice(setOscOnePitchAmount(value));
+    ForEachVoice(SetOscOnePitchAmount(value));
   }
 
   inline void setOsc1Pitch(float value) {
-    ForEachVoice(setOscTwoPitchAmount(value));
+    ForEachVoice(SetOscTwoPitchAmount(value));
   }
 
   inline void setVolumeAttack(float value) {
-    ForEachVoice(v_env.setAttackRate(value));
+    ForEachVoice(v_env.SetAttackRate(value));
   }
 
   inline void setVolumeDecay(float value) {
-    ForEachVoice(v_env.setDecayRate(value));
+    ForEachVoice(v_env.SetDecayRate(value));
   }
 
   inline void setVolumeSustain(float value) {
-    ForEachVoice(v_env.setSustainLevel(value));
+    ForEachVoice(v_env.SetSustainLevel(value));
   }
 
   inline void setVolumeRelease(float value) {
-    ForEachVoice(v_env.setReleaseRate(value));
+    ForEachVoice(v_env.SetReleaseRate(value));
   }
 
   inline void setFilterAttack(float value) {
-    ForEachVoice(f_env.setAttackRate(value));
+    ForEachVoice(f_env.SetAttackRate(value));
   }
 
   inline void setFilterDecay(float value) {
-    ForEachVoice(f_env.setDecayRate(value));
+    ForEachVoice(f_env.SetDecayRate(value));
   }
 
   inline void setFilterSustain(float value) {
-    ForEachVoice(f_env.setSustainLevel(value));
+    ForEachVoice(f_env.SetSustainLevel(value));
   }
 
   inline void setFilterRelease(float value) {
-    ForEachVoice(f_env.setReleaseRate(value));
+    ForEachVoice(f_env.SetReleaseRate(value));
   }
 
-  inline void setDetune(float value) { ForEachVoice(setDetune(value)); }
+  inline void setDetune(float value) { ForEachVoice(SetDetune(value)); }
 
   inline void setFilterEnvAmount(float amount) {
-    ForEachVoice(setFilterEnvelopeAmount(amount));
+    ForEachVoice(SetFilterEnvelopeAmount(amount));
   }
 
   inline void setFilterLFOAmount(float amount) {
-    ForEachVoice(setFilterLFOAmount(amount));
+    ForEachVoice(SetFilterLFOAmount(amount));
   }
 };
 

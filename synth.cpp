@@ -81,8 +81,7 @@ int main(void) {
   tim5.SetCallback(Tick);
 
   // Initialize UI
-  engine.Init(&hw, &load_meter, daisy::seed::D17, daisy::seed::D16,
-              daisy::seed::D15, sample_rate);
+  engine.Init(&hw, &load_meter, sample_rate);
 
   engine.voice_manager.SetWavetable(saw_wt, total_saw_slots, sqr_wt,
                                     total_sqr_slots);

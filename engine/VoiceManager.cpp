@@ -39,8 +39,8 @@ void VoiceManager::Process(float *left, float *right) {
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
     if (voice.is_active) {
-      voice.setLFOValue(lfo_value);
-      output += voice.nextSample();
+      voice.SetLFOValue(lfo_value);
+      output += voice.Process();
     }
   }
 
