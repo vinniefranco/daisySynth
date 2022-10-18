@@ -15,8 +15,8 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
       if (!voices_[i].is_active) {
         free_voice = &(voices_[i]);
         free_voice->age = 0;
-        // Alternatively, find the oldest playing voice
       } else {
+        // Alternatively, find the oldest playing voice
         if (voices_[i].age > oldest) {
           oldest = voices_[i].age;
           oldest_voice = &(voices_[i]);

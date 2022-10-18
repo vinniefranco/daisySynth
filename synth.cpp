@@ -37,8 +37,8 @@ void Tick(void *data) { engine.tick(); }
 static void AudioCallback(AudioHandle::InputBuffer in,
                           AudioHandle::OutputBuffer out, size_t size) {
   load_meter.OnBlockStart();
-  engine.voice_manager.setFilterCutoff(engine.GetCutoff());
-  engine.voice_manager.setFilterResonance(engine.GetRes());
+  engine.voice_manager.SetFilterCutoff(engine.GetCutoff());
+  engine.voice_manager.SetFilterResonance(engine.GetRes());
 
   for (size_t i = 0; i < size; i++) {
     engine.Process(&out[0][i], &out[1][i]);
@@ -108,7 +108,7 @@ int main(void) {
         switch (cc.control_number) {
 
         case 1: {
-          engine.voice_manager.setFilterLFOAmount(((float)cc.value / 127.f));
+          engine.voice_manager.SetFilterLFOAmount(((float)cc.value / 127.f));
           break;
         }
 
@@ -136,37 +136,37 @@ int main(void) {
         }
 
         case 72: {
-          engine.voice_manager.setDetune((float)cc.value / 127.f);
+          engine.voice_manager.SetDetune((float)cc.value / 127.f);
           break;
         }
 
         case 73: {
-          engine.voice_manager.setFilterEnvAmount((float)cc.value / 127.f);
+          engine.voice_manager.SetFilterEnvAmount((float)cc.value / 127.f);
           break;
         }
 
         case 75: {
-          engine.voice_manager.setLFOFrequency(((float)cc.value / 127.f) *
+          engine.voice_manager.SetLFOFrequency(((float)cc.value / 127.f) *
                                                10.f);
           break;
         }
 
         case 76: {
-          engine.voice_manager.setOsc0Pitch(
+          engine.voice_manager.SetOsc0Pitch(
               daisysp::fmap((float)cc.value / 127.f, 0.5f, 1.f));
 
           break;
         }
 
         case 77: {
-          engine.voice_manager.setOscMix(
+          engine.voice_manager.SetOscMix(
               daisysp::fmap((float)cc.value / 127.f, 0.0f, 1.f));
 
           break;
         }
 
         case 90: {
-          engine.voice_manager.setVolumeAttack(
+          engine.voice_manager.SetVolumeAttack(
               daisysp::fmap((float)cc.value / 127.f, 0.005f, 4.f,
                             daisysp::Mapping::LOG) *
               sample_rate);
@@ -174,25 +174,25 @@ int main(void) {
         }
 
         case 91: {
-          engine.voice_manager.setVolumeDecay(
+          engine.voice_manager.SetVolumeDecay(
               daisysp::fmap((float)cc.value / 127.f, 0.1f, 3.f) * sample_rate);
           break;
         }
 
         case 92: {
-          engine.voice_manager.setVolumeSustain(
+          engine.voice_manager.SetVolumeSustain(
               daisysp::fmax((float)cc.value / 127.f, 0.01f));
           break;
         }
 
         case 93: {
-          engine.voice_manager.setVolumeRelease(
+          engine.voice_manager.SetVolumeRelease(
               daisysp::fmap((float)cc.value / 127.f, 0.1f, 4.f) * sample_rate);
           break;
         }
 
         case 100: {
-          engine.voice_manager.setFilterAttack(
+          engine.voice_manager.SetFilterAttack(
               daisysp::fmap((float)cc.value / 127.f, 0.005f, 4.f,
                             daisysp::Mapping::LOG) *
               sample_rate);
@@ -200,19 +200,19 @@ int main(void) {
         }
 
         case 101: {
-          engine.voice_manager.setFilterDecay(
+          engine.voice_manager.SetFilterDecay(
               daisysp::fmap((float)cc.value / 127.f, 0.1f, 3.f) * sample_rate);
           break;
         }
 
         case 102: {
-          engine.voice_manager.setFilterSustain(
+          engine.voice_manager.SetFilterSustain(
               daisysp::fmax((float)cc.value / 127.f, 0.01f));
           break;
         }
 
         case 103: {
-          engine.voice_manager.setFilterRelease(
+          engine.voice_manager.SetFilterRelease(
               daisysp::fmap((float)cc.value / 127.f, 0.1f, 4.f) * sample_rate);
           break;
         }
@@ -223,14 +223,14 @@ int main(void) {
         auto note_msg = msg.AsNoteOn();
 
         if (note_msg.velocity != 0)
-          engine.voice_manager.onNoteOn(note_msg.note, note_msg.velocity);
+          engine.voice_manager.OnNoteOn(note_msg.note, note_msg.velocity);
 
       } break;
       case NoteOff: {
         auto note_msg = msg.AsNoteOff();
 
         engine.SetVol((float)note_msg.note);
-        engine.voice_manager.onNoteOff(note_msg.note, note_msg.velocity);
+        engine.voice_manager.OnNoteOff(note_msg.note, note_msg.velocity);
 
       } break;
 
