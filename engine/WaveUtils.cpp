@@ -27,7 +27,6 @@
 //
 
 #include "WaveUtils.h"
-#include <math.h>
 
 void fft(int N, float *ar, float *ai);
 float makeWaveTable(waveTable *table, int len, float *ar, float *ai,
