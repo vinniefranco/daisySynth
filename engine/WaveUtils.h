@@ -15,6 +15,11 @@ struct waveTable {
   float *waveTable;
 };
 
+struct WaveSlot {
+  waveTable *wt;
+  int wt_slots;
+};
+
 int AddWaveTable(int len, waveTable *table, int *n_tables, const int totalSlots,
                  float *waveTableIn, float topFreq);
 int fillTables(waveTable *table, float *freqWaveRe, float *freqWaveIm,

@@ -66,9 +66,8 @@ public:
     ForEachVoice(flt.setResonance(resonance));
   }
 
-  inline void SetWavetable(waveTable *saw, int total_saw_slots, waveTable *sqr,
-                           int total_sqr_slots) {
-    ForEachVoice(SetWavetable(saw, total_saw_slots, sqr, total_sqr_slots))
+  inline void SetWavetable(WaveSlot *wt_slots) {
+    ForEachVoice(SetWavetable(wt_slots))
   }
 
   inline void SetPitchBend(float value) { ForEachVoice(SetPitchBend(value)); }

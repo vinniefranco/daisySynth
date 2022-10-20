@@ -94,10 +94,9 @@ public:
     v_env.gate(true);
     f_env.gate(true);
   }
-  inline void SetWavetable(waveTable *saw, int saw_slots, waveTable *sqr,
-                           int sqr_slots) {
-    osc0_.SetWavetable(saw, saw_slots);
-    osc1_.SetWavetable(sqr, sqr_slots);
+  inline void SetWavetable(WaveSlot *wt_slots) {
+    osc0_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
+    osc1_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
   }
   float nextSample();
   void setFree();
