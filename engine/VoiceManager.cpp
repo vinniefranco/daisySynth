@@ -2,8 +2,8 @@
 
 Voice *VoiceManager::findFreeVoice(int midi_note) {
   Voice *free_voice = NULL;
-  Voice *oldest_voice = NULL;
   uint32_t oldest = 0;
+  uint8_t oldest_idx = -1;
 
   for (int i = 0; i < number_of_voices_; i++) {
     // Replay the same note.
@@ -13,13 +13,13 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
     }
     if (voices_[i].age > oldest) {
       oldest = voices_[i].age;
-      oldest_voice = &(voices_[i]);
+      oldest_idx = i;
     }
   }
   if (free_voice == NULL) {
-    oldest_voice->age = 0;
-    oldest_voice->ResetPhasor();
-    return oldest_voice;
+    free_voice = &(voices_[oldest_idx]);
+    free_voice->age = 0;
+    free_voice->ResetPhasor();
   }
 
   return free_voice;
