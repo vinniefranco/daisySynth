@@ -8,7 +8,7 @@ calculates a lowpass, highpass and bandpass filter dependng on the mode selected
 float EnvFilter::Process(float inputValue) {
   if (inputValue == 0.0)
     return inputValue;
-  float calculatedCutoff = getCalculatedCutoff();
+  float calculatedCutoff = GetCalculatedCutoff();
   //
   buf0 +=
       calculatedCutoff * (inputValue - buf0 + feedbackAmount * (buf0 - buf1));

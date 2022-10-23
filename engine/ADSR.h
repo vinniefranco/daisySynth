@@ -19,12 +19,12 @@
 //  1.01  2016-01-02  njr   added calcCoef to SetTargetRatio functions that were
 //  in the ADSR widget but missing in this code 1.02  2017-01-04  njr   in
 //  calcCoef, checked for rate 0, to support non-IEEE compliant compilers 1.03
-//  2020-04-08  njr   changed float to float; large target ratio and rate
+//  2020-04-08  njr   changed double to float; large target ratio and rate
 //  resulted in exp returning 1 in calcCoef
 //
 
-#ifndef FADRS_h
-#define FADRS_h
+#ifndef ADRS_h
+#define ADRS_h
 
 #include <math.h>
 
@@ -32,24 +32,24 @@ class ADSR {
 public:
   ADSR(void);
   ~ADSR(void);
-  float process(void);
-  float getOutput(void);
-  int getState(void);
-  void gate(int on);
-  void setAttackRate(float rate);
-  void setDecayRate(float rate);
-  void setReleaseRate(float rate);
-  void setSustainLevel(float level);
-  void setTargetRatioA(float targetRatio);
-  void setTargetRatioDR(float targetRatio);
-  void reset(void);
+  float Process(void);
+  float GetOutput(void);
+  int GetState(void);
+  void Gate(int on);
+  void SetAttackRate(float rate);
+  void SetDecayRate(float rate);
+  void SetReleaseRate(float rate);
+  void SetSustainLevel(float level);
+  void SetTargetRatioA(float targetRatio);
+  void SetTargetRatioDR(float targetRatio);
+  void Reset(void);
 
   enum envState {
-    env_idle = 0,
-    env_attack,
-    env_decay,
-    env_sustain,
-    env_release
+    ENV_IDLE = 0,
+    ENV_ATTACK,
+    ENV_DECAY,
+    ENV_SUSTAIN,
+    ENV_RELEASE
   };
 
 protected:
@@ -68,53 +68,53 @@ protected:
   float decayBase;
   float releaseBase;
 
-  float calcCoef(float rate, float targetRatio);
+  float CalcCoef(float rate, float targetRatio);
 };
 
-inline float ADSR::process() {
+inline float ADSR::Process() {
   switch (state) {
-  case env_idle:
+  case ENV_IDLE:
     break;
-  case env_attack:
+  case ENV_ATTACK:
     output = attackBase + output * attackCoef;
     if (output >= 1.0) {
       output = 1.0;
-      state = env_decay;
+      state = ENV_DECAY;
     }
     break;
-  case env_decay:
+  case ENV_DECAY:
     output = decayBase + output * decayCoef;
     if (output <= sustainLevel) {
       output = sustainLevel;
-      state = env_sustain;
+      state = ENV_SUSTAIN;
     }
     break;
-  case env_sustain:
+  case ENV_SUSTAIN:
     break;
-  case env_release:
+  case ENV_RELEASE:
     output = releaseBase + output * releaseCoef;
     if (output <= 0.0) {
       output = 0.0;
-      state = env_idle;
+      state = ENV_IDLE;
     }
   }
   return output;
 }
 
-inline void ADSR::gate(int gate) {
+inline void ADSR::Gate(int gate) {
   if (gate)
-    state = env_attack;
-  else if (state != env_idle)
-    state = env_release;
+    state = ENV_ATTACK;
+  else if (state != ENV_IDLE)
+    state = ENV_RELEASE;
 }
 
-inline int ADSR::getState() { return state; }
+inline int ADSR::GetState() { return state; }
 
-inline void ADSR::reset() {
-  state = env_idle;
+inline void ADSR::Reset() {
+  state = ENV_IDLE;
   output = 0.0;
 }
 
-inline float ADSR::getOutput() { return output; }
+inline float ADSR::GetOutput() { return output; }
 
 #endif

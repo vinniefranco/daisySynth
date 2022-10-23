@@ -169,7 +169,7 @@ void sqrOsc(waveTable *table, int *n_tables, const int totalSlots) {
   float *freqWaveRe = new float[tableLen];
   float *freqWaveIm = new float[tableLen];
 
-  // make a sawtooth
+  // make a square
   for (idx = 0; idx < tableLen; idx++) {
     if (idx < tableLen / 2) {
       freqWaveIm[idx] = 1.0f;

@@ -2,6 +2,7 @@
 #define __VOICEMANAGER__
 #pragma once
 
+#include "Effects/chorus.h"
 #include "sys/system.h"
 
 #include "Voice.h"
@@ -9,6 +10,7 @@
 class VoiceManager {
 private:
   daisysp::Compressor comp_;
+  daisysp::Chorus chorus;
   float midi_[127];
   float volume_;
   static const int number_of_voices_ = 16;
@@ -26,6 +28,9 @@ public:
       Voice &voice = voices_[i];
       voice.Init(sample_rate, 0.5f);
     }
+    chorus.Init(sample_rate);
+    chorus.SetLfoFreq(0.54f, 0.48f);
+    chorus.SetFeedback(0.3f);
     comp_.Init(sample_rate);
     comp_.AutoMakeup(false);
     comp_.SetMakeup(14.0f);
@@ -52,18 +57,18 @@ public:
 
     ForEachVoice(age += 1);
 
-    voice->setNoteNumber(midi_note, midi_[midi_note], velocity);
+    voice->SetNoteNumber(midi_note, midi_[midi_note], velocity);
   }
   inline void onNoteOff(int midi_note, int velocity) {
-    ForEachVoice(clearNoteNumber(midi_note));
+    ForEachVoice(ClearNoteNumber(midi_note));
   }
 
   inline void setFilterCutoff(float cutoff) {
-    ForEachVoice(flt.setCutoff(cutoff));
+    ForEachVoice(flt.SetCutoff(cutoff));
   }
 
   inline void setFilterResonance(float resonance) {
-    ForEachVoice(flt.setResonance(resonance));
+    ForEachVoice(flt.SetResonance(resonance));
   }
 
   inline void SetWavetable(WaveSlot *wt_slots) {
@@ -74,56 +79,56 @@ public:
 
   inline void setLFOFrequency(float frequency) { lfo_.SetFreq(frequency); };
 
-  inline void setOscMix(float value) { ForEachVoice(setOscMix(value)); }
+  inline void setOscMix(float value) { ForEachVoice(SetOscMix(value)); }
 
   inline void setOsc0Pitch(float value) {
-    ForEachVoice(setOscOnePitchAmount(value));
+    ForEachVoice(SetOscOnePitchAmount(value));
   }
 
   inline void setOsc1Pitch(float value) {
-    ForEachVoice(setOscTwoPitchAmount(value));
+    ForEachVoice(SetOscTwoPitchAmount(value));
   }
 
   inline void setVolumeAttack(float value) {
-    ForEachVoice(v_env.setAttackRate(value));
+    ForEachVoice(v_env.SetAttackRate(value));
   }
 
   inline void setVolumeDecay(float value) {
-    ForEachVoice(v_env.setDecayRate(value));
+    ForEachVoice(v_env.SetDecayRate(value));
   }
 
   inline void setVolumeSustain(float value) {
-    ForEachVoice(v_env.setSustainLevel(value));
+    ForEachVoice(v_env.SetSustainLevel(value));
   }
 
   inline void setVolumeRelease(float value) {
-    ForEachVoice(v_env.setReleaseRate(value));
+    ForEachVoice(v_env.SetReleaseRate(value));
   }
 
   inline void setFilterAttack(float value) {
-    ForEachVoice(f_env.setAttackRate(value));
+    ForEachVoice(f_env.SetAttackRate(value));
   }
 
   inline void setFilterDecay(float value) {
-    ForEachVoice(f_env.setDecayRate(value));
+    ForEachVoice(f_env.SetDecayRate(value));
   }
 
   inline void setFilterSustain(float value) {
-    ForEachVoice(f_env.setSustainLevel(value));
+    ForEachVoice(f_env.SetSustainLevel(value));
   }
 
   inline void setFilterRelease(float value) {
-    ForEachVoice(f_env.setReleaseRate(value));
+    ForEachVoice(f_env.SetReleaseRate(value));
   }
 
-  inline void setDetune(float value) { ForEachVoice(setDetune(value)); }
+  inline void setDetune(float value) { ForEachVoice(SetDetune(value)); }
 
   inline void setFilterEnvAmount(float amount) {
-    ForEachVoice(setFilterEnvelopeAmount(amount));
+    ForEachVoice(SetFilterEnvelopeAmount(amount));
   }
 
   inline void setFilterLFOAmount(float amount) {
-    ForEachVoice(setFilterLFOAmount(amount));
+    ForEachVoice(SetFilterLFOAmount(amount));
   }
 };
 
