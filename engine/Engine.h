@@ -56,8 +56,8 @@ public:
     disp_cfg.driver_config.transport_config.pin_config.reset = hw->GetPin(13);
     display.Init(disp_cfg);
 
-    voice_manager.setSampleRate(sample_rate);
-    voice_manager.setLFOFrequency(0.03f);
+    voice_manager.Init(sample_rate);
+    voice_manager.SetLFOFrequency(0.03f);
 
     e.Init(clk, data, swth);
 

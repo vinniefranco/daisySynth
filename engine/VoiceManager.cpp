@@ -6,7 +6,6 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
   uint8_t oldest_idx = -1;
 
   for (int i = 0; i < number_of_voices_; i++) {
-    // Replay the same note.
     if (!voices_[i].is_active) {
       free_voice = &(voices_[i]);
       free_voice->age = 0;
@@ -40,11 +39,6 @@ void VoiceManager::Process(float *left, float *right) {
   output = comp_.Process(output * temp_vol);
 
   last_sample = output;
-
-  // chorus.Process(output);
-
-  // *left = chorus.GetLeft();
-  // *right = chorus.GetRight();
 
   *left = output;
   *right = output;
