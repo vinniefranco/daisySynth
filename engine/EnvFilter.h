@@ -13,7 +13,7 @@ public:
     kNumFilterModes
   };
   EnvFilter()
-      : cutoff(0.99f), resonance(0.01f), mode(FILTER_MODE_BANDPASS), buf0(0.0f),
+      : cutoff(0.99f), resonance(0.01f), mode(FILTER_MODE_LOWPASS), buf0(0.0f),
         buf1(0.0f), buf2(0.0f), buf3(0.0f), cutoffMod(0.0f) {
     CalculateFeedbackAmount();
   }

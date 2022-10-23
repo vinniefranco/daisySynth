@@ -7,24 +7,16 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
 
   for (int i = 0; i < number_of_voices_; i++) {
     // Replay the same note.
-    if (voices_[i].note_number == midi_note) {
+    if (!voices_[i].is_active) {
       free_voice = &(voices_[i]);
       free_voice->age = 0;
-    } else {
-      // Find an available voice
-      if (!voices_[i].is_active) {
-        free_voice = &(voices_[i]);
-        free_voice->age = 0;
-        // Alternatively, find the oldest playing voice
-      } else {
-        if (voices_[i].age > oldest) {
-          oldest = voices_[i].age;
-          oldest_voice = &(voices_[i]);
-        }
-      }
+    }
+    if (voices_[i].age > oldest) {
+      oldest = voices_[i].age;
+      oldest_voice = &(voices_[i]);
     }
   }
-  if (free_voice == NULL && oldest_voice != NULL) {
+  if (free_voice == NULL) {
     oldest_voice->age = 0;
     oldest_voice->ResetPhasor();
     return oldest_voice;
@@ -49,8 +41,11 @@ void VoiceManager::Process(float *left, float *right) {
 
   last_sample = output;
 
-  chorus.Process(output);
+  // chorus.Process(output);
 
-  *left = chorus.GetLeft();
-  *right = chorus.GetRight();
+  // *left = chorus.GetLeft();
+  // *right = chorus.GetRight();
+
+  *left = output;
+  *right = output;
 }

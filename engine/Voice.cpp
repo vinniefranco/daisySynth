@@ -10,7 +10,7 @@ float Voice::Process() {
 
   flt.SetCutoffMod(f_env_value * f_env_amount + (lfo_value * f_lfo_amount));
 
-  if (v_env.GetState() == v_env.env_idle) {
+  if (v_env.GetState() == v_env.ENV_IDLE) {
     SetFree();
     return 0.0f;
   }
