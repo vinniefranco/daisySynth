@@ -24,11 +24,12 @@ private:
   float lfo_value;
   float m_osc_mix;
   int velocity;
+  float rand_walk[6] = {0.02f, 0.008f, 0.03f, 0.003f, 0.05f, 0.1f};
+  uint8_t walk_cursor = 0;
 
 public:
   friend class VoiceManager;
   int note_number;
-  int panning = 3;
   uint32_t age;
   Voice()
       : is_active(false), f_env_amount(0.0f), note_number(-1), velocity(0),
@@ -84,7 +85,9 @@ public:
     }
 
     note_number = midi_note;
-    freq = new_freq;
+    freq = new_freq + rand_walk[walk_cursor % 6];
+
+    walk_cursor++;
 
     osc0_.SetFreq((freq * mOscOnePitchAmount) * bend);
     osc1_.SetFreq((freq * mOscTwoPitchAmount + detune) * bend);

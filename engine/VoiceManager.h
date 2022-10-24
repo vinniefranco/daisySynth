@@ -20,10 +20,11 @@ private:
 
 public:
   float last_sample = 0.0f;
-  void Process(float *left, float *right);
 
-  VoiceManager();
-  ~VoiceManager();
+  VoiceManager(){};
+  ~VoiceManager(){};
+
+  void Process(float *left, float *right);
 
   inline void SetVolume(float new_vol) { volume_ = new_vol; };
   inline void Init(float sample_rate) {

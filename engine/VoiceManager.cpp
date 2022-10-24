@@ -10,7 +10,7 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
       free_voice = &(voices_[i]);
       free_voice->age = 0;
     }
-    if (voices_[i].age > oldest) {
+    if (voices_[i].is_active && voices_[i].age > oldest) {
       oldest = voices_[i].age;
       oldest_idx = i;
     }

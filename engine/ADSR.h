@@ -74,6 +74,7 @@ protected:
 inline float ADSR::Process() {
   switch (state) {
   case ENV_IDLE:
+
     break;
   case ENV_ATTACK:
     output = attackBase + output * attackCoef;
@@ -102,10 +103,11 @@ inline float ADSR::Process() {
 }
 
 inline void ADSR::Gate(int gate) {
-  if (gate)
+  if (gate) {
     state = ENV_ATTACK;
-  else if (state != ENV_IDLE)
+  } else if (state != ENV_IDLE) {
     state = ENV_RELEASE;
+  }
 }
 
 inline int ADSR::GetState() { return state; }
