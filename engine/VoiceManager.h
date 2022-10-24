@@ -9,7 +9,6 @@
 
 class VoiceManager {
 private:
-  daisysp::Compressor comp_;
   float midi_[127];
   float key_follow_[127];
   float volume_;
@@ -33,9 +32,6 @@ public:
       Voice &voice = voices_[i];
       voice.Init(sample_rate, 0.5f);
     }
-    comp_.Init(sample_rate);
-    comp_.AutoMakeup(false);
-    comp_.SetMakeup(14.0f);
     lfo_.Init(sample_rate);
     lfo_.SetWaveform(lfo_.WAVE_SIN);
     lfo_.SetAmp(0.1f);

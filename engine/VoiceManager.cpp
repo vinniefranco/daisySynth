@@ -35,8 +35,7 @@ void VoiceManager::Process(float *left, float *right) {
     }
   }
 
-  float temp_vol = 1.f / (float)number_of_voices_;
-  output = comp_.Process(output * temp_vol);
+  output *= volume_;
 
   last_sample = output;
 

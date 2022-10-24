@@ -80,6 +80,11 @@ void Engine::ListenToMidi() {
         break;
       }
 
+      case 74: {
+        voice_manager.SetVolume((float)cc.value / 127.f);
+        break;
+      }
+
       case 75: {
         voice_manager.SetLFOFrequency(((float)cc.value / 127.f) * 10.f);
         break;
