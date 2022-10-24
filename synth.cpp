@@ -14,7 +14,7 @@ CpuLoadMeter load_meter;
 /**
  * WAVETABLEs need to be setup globals in SDRAM and drilled down.
  */
-static constexpr int MAX_SLOTS = 18;
+static constexpr int MAX_SLOTS = 36;
 
 static waveTable DSY_SDRAM_BSS saw_wt[MAX_SLOTS];
 static int total_saw_slots = 0;

@@ -20,10 +20,11 @@ private:
   float mOscTwoPitchAmount;
   float f_env_amount;
   float f_lfo_amount;
+  float key_follow_amount;
   float freq = 0.0f;
   float lfo_value;
   float m_osc_mix;
-  int velocity;
+  float velocity;
   float rand_walk[6] = {0.02f, 0.008f, 0.03f, 0.003f, 0.05f, 0.1f};
   uint8_t walk_cursor = 0;
 
@@ -32,9 +33,13 @@ public:
   int note_number;
   uint32_t age;
   Voice()
-      : is_active(false), f_env_amount(0.0f), note_number(-1), velocity(0),
+      : is_active(false), f_env_amount(0.0f), note_number(-1), velocity(0.0f),
         m_osc_mix(0.5f), f_lfo_amount(0.0f), mOscOnePitchAmount(1.0f),
         mOscTwoPitchAmount(1.0f), lfo_value(0.0f), age(0){};
+
+  void SetNoteNumber(int midi_note, float new_freq, float new_velocity,
+                     float key_follow_amount);
+  void ClearNoteNumber(int midi_note);
 
   inline void Init(float new_sample_rate, float osc_amp) {
     osc0_.Init(new_sample_rate);
@@ -72,31 +77,6 @@ public:
   inline void SetOscMix(float amount) { m_osc_mix = amount; }
   inline void SetDetune(float new_detune) { detune = new_detune; }
   inline void SetLFOValue(float value) { lfo_value = value; }
-  inline void ClearNoteNumber(int midi_note) {
-    if (note_number == midi_note) {
-      v_env.Gate(false);
-      f_env.Gate(false);
-    }
-  }
-  inline void SetNoteNumber(int midi_note, float new_freq, int new_velocity) {
-    if (note_number != midi_note) {
-      Reset();
-      ResetPhasor();
-    }
-
-    note_number = midi_note;
-    freq = new_freq + rand_walk[walk_cursor % 6];
-
-    walk_cursor++;
-
-    osc0_.SetFreq((freq * mOscOnePitchAmount) * bend);
-    osc1_.SetFreq((freq * mOscTwoPitchAmount + detune) * bend);
-
-    velocity = new_velocity;
-    is_active = true;
-    v_env.Gate(true);
-    f_env.Gate(true);
-  }
   inline void SetWavetable(WaveSlot *wt_slots) {
     osc0_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
     osc1_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);

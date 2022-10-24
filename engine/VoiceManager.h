@@ -11,6 +11,7 @@ class VoiceManager {
 private:
   daisysp::Compressor comp_;
   float midi_[127];
+  float key_follow_[127];
   float volume_;
   static const int number_of_voices_ = 16;
   Voice voices_[number_of_voices_];
@@ -39,8 +40,9 @@ public:
     lfo_.SetWaveform(lfo_.WAVE_SIN);
     lfo_.SetAmp(0.1f);
 
-    for (int x = 0; x < 127; ++x) {
+    for (int x = 0; x < 127; x++) {
       midi_[x] = daisysp::mtof(x);
+      key_follow_[x] = daisysp::fmap((float)x, 0.001f, 0.16f);
     }
   }
 
@@ -58,7 +60,10 @@ public:
 
     ForEachVoice(age += 1);
 
-    voice->SetNoteNumber(midi_note, midi_[midi_note], velocity);
+    voice->SetNoteNumber(
+        midi_note, midi_[midi_note],
+        daisysp::fmap((float)velocity, 0.001f, 1.f, daisysp::Mapping::LOG),
+        key_follow_[midi_note]);
   }
   inline void OnNoteOff(int midi_note, int velocity) {
     ForEachVoice(ClearNoteNumber(midi_note));

@@ -156,8 +156,10 @@ void Engine::ListenToMidi() {
     case daisy::NoteOn: {
       auto note_msg = msg.AsNoteOn();
 
-      if (note_msg.velocity != 0)
+      if (note_msg.velocity != 0) {
+        SetVol(note_msg.note);
         voice_manager.OnNoteOn(note_msg.note, note_msg.velocity);
+      }
 
     } break;
     case daisy::NoteOff: {
