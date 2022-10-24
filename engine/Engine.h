@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../table_encoder.h"
 #include "VoiceManager.h"
 #include <cstdint>
 #include <math.h>
@@ -27,11 +26,12 @@ private:
   float cutoff = 0.9f;
   float res = 0.0f;
   uint16_t ticker = 0;
-  TableEncoder e;
   daisy::DaisySeed *hw;
+  daisy::MidiUsbHandler *midi;
+  daisy::CpuLoadMeter *load_meter;
   SynthOledDisplay::Config disp_cfg;
   SynthOledDisplay display;
-  daisy::CpuLoadMeter *load_meter;
+  float sample_rate;
 
   char pot[128];
   char strbuff2[128];
@@ -44,13 +44,21 @@ public:
   Engine() {}
   ~Engine() {}
 
+  void HandleAudioCallback(daisy::AudioHandle::OutputBuffer out, size_t size);
   void Process(float *left, float *right);
   void writeToUIBuffer(float sample);
+  void ListenToMidi();
 
-  void Init(daisy::DaisySeed *seed, daisy::CpuLoadMeter *meter, daisy::Pin clk,
-            daisy::Pin data, daisy::Pin swth, float sample_rate) {
+  void Init(daisy::DaisySeed *seed, daisy::CpuLoadMeter *meter,
+            daisy::MidiUsbHandler *new_midi, float new_sample_rate) {
     hw = seed;
+
+    sample_rate = new_sample_rate;
     load_meter = meter;
+    midi = new_midi;
+
+    load_meter->Init(sample_rate, hw->AudioBlockSize());
+
     // Config Display
     disp_cfg.driver_config.transport_config.pin_config.dc = hw->GetPin(11);
     disp_cfg.driver_config.transport_config.pin_config.reset = hw->GetPin(13);
@@ -58,8 +66,6 @@ public:
 
     voice_manager.Init(sample_rate);
     voice_manager.SetLFOFrequency(0.03f);
-
-    e.Init(clk, data, swth);
 
     daisy::System::Delay(1000);
   }
@@ -82,35 +88,7 @@ public:
 
   inline float GetRes() { return res; }
 
-  int8_t Read() { return e.Read(); }
-
   void tick() {
-    switch (Read()) {
-    case 1:
-      if (x <= 1.f) {
-        x += 0.05f;
-      }
-      break;
-
-    case -1:
-      if (x >= 0.0f) {
-        x -= 0.05f;
-      }
-      break;
-    default:
-      break;
-    }
-
-    // float cut_reading = hw->adc.GetFloat(0);
-    // if (abs(cut_reading - last_cutoff_read) > 0.01f) {
-    //   cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
-    // }
-
-    // float res_reading = hw->adc.GetFloat(1) - 0.01f;
-    // if (abs(res_reading - last_res_read) > 0.01f) {
-    //   res = 0.9f * (res_reading - res) + res;
-    // }
-
     if (ticker % 100 == 0) {
       const float avg_load = load_meter->GetAvgCpuLoad();
 
@@ -138,10 +116,6 @@ public:
         } else {
           neg[i] = abs(screen_buffer[i]);
         }
-        // uint8_t y = (uint8_t)daisysp::fmap(screen_buffer[i]
-        // + 1.0f, 1.0f, 64.f,
-        //                                    daisysp::Mapping::LOG);
-        // display.DrawPixel(i, 74 - y, true);
       }
 
       for (size_t i = 0; i < 128; i++) {
@@ -159,12 +133,7 @@ public:
         }
       }
 
-      // display.DrawLine(0, 20, position, 20, true);
-      // display.DrawLine(position, 20, position + 8, 40, true);
-
       display.Update();
-
-      // voice_manager.setVolume(x);
     }
   }
 };

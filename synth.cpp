@@ -53,14 +53,7 @@ void Tick(void *data) { engine.tick(); }
 
 static void AudioCallback(AudioHandle::InputBuffer in,
                           AudioHandle::OutputBuffer out, size_t size) {
-  load_meter.OnBlockStart();
-  engine.voice_manager.SetFilterCutoff(engine.GetCutoff());
-  engine.voice_manager.SetFilterResonance(engine.GetRes());
-
-  for (size_t i = 0; i < size; i++) {
-    engine.Process(&out[0][i], &out[1][i]);
-  }
-  load_meter.OnBlockEnd();
+  engine.HandleAudioCallback(out, size);
 }
 
 int main(void) {
@@ -76,189 +69,33 @@ int main(void) {
 
   sample_rate = hw.AudioSampleRate();
 
-  const int num_adc_channels = 2;
-
-  // Init ADC
-  AdcChannelConfig adc_config[num_adc_channels];
-  adc_config[0].InitSingle(daisy::seed::A4);
-
+  // Setup timer
   TimerHandle tim5;
   TimerHandle::Config tim_config;
-
   tim_config.periph = TimerHandle::Config::Peripheral::TIM_5;
   tim_config.enable_irq = true;
-
   auto tim_target_freq = 48;
   auto time_base_req = System::GetPClk2Freq();
   tim_config.period = time_base_req / tim_target_freq;
   tim5.Init(tim_config);
   tim5.SetCallback(Tick);
 
-  // Initialize UI
-  engine.Init(&hw, &load_meter, daisy::seed::D17, daisy::seed::D16,
-              daisy::seed::D15, sample_rate);
-
-  engine.voice_manager.SetWavetable(wt_slots);
-
+  // Init MIDI
   MidiUsbHandler::Config midi_cfg;
   midi_cfg.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
   midi.Init(midi_cfg);
 
-  load_meter.Init(sample_rate, hw.AudioBlockSize());
+  // Initialize UI
+  engine.Init(&hw, &load_meter, &midi, sample_rate);
+
+  // Set static slots
+  engine.voice_manager.SetWavetable(wt_slots);
 
   // Start Callback
   hw.StartAudio(AudioCallback);
 
   tim5.Start();
   while (1) {
-    midi.Listen();
-
-    while (midi.HasEvents()) {
-      auto msg = midi.PopEvent();
-
-      switch (msg.type) {
-      case ControlChange: {
-        auto cc = msg.AsControlChange();
-        switch (cc.control_number) {
-
-        case 1: {
-          engine.voice_manager.SetFilterLFOAmount(((float)cc.value / 127.f));
-          break;
-        }
-
-        case 70: {
-
-          if (cc.value == 0) {
-            engine.SetCutoff(0.0f);
-
-          } else {
-            float new_val = cc.value / 127.f;
-
-            if (new_val > 0.001f) {
-              new_val =
-                  daisysp::fmap(new_val, 0.01f, 1.f, daisysp::Mapping::LOG);
-              engine.SetCutoff(new_val);
-            }
-          }
-
-          break;
-        }
-
-        case 71: {
-          engine.SetRes(cc.value);
-          break;
-        }
-
-        case 72: {
-          engine.voice_manager.SetDetune((float)cc.value / 127.f);
-          break;
-        }
-
-        case 73: {
-          engine.voice_manager.SetFilterEnvAmount((float)cc.value / 127.f);
-          break;
-        }
-
-        case 75: {
-          engine.voice_manager.SetLFOFrequency(((float)cc.value / 127.f) *
-                                               10.f);
-          break;
-        }
-
-        case 76: {
-          engine.voice_manager.SetOsc0Pitch(
-              daisysp::fmap((float)cc.value / 127.f, 0.5f, 1.f));
-
-          break;
-        }
-
-        case 77: {
-          engine.voice_manager.SetOscMix(
-              daisysp::fmap((float)cc.value / 127.f, 0.0f, 1.f));
-
-          break;
-        }
-
-        case 90: {
-          engine.voice_manager.SetVolumeAttack(
-              daisysp::fmap((float)cc.value / 127.f, 0.05f, 5.f,
-                            daisysp::Mapping::LOG) *
-              sample_rate);
-          break;
-        }
-
-        case 91: {
-          engine.voice_manager.SetVolumeDecay(
-              daisysp::fmap((float)cc.value / 127.f, 0.05f, 5.f) * sample_rate);
-          break;
-        }
-
-        case 92: {
-          engine.voice_manager.SetVolumeSustain(
-              daisysp::fmax((float)cc.value / 127.f, 0.01f));
-          break;
-        }
-
-        case 93: {
-          engine.voice_manager.SetVolumeRelease(
-              daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f) * sample_rate);
-          break;
-        }
-
-        case 100: {
-          engine.voice_manager.SetFilterAttack(
-              daisysp::fmap((float)cc.value / 127.f, 0.005f, 5.f,
-                            daisysp::Mapping::LOG) *
-              sample_rate);
-          break;
-        }
-
-        case 101: {
-          engine.voice_manager.SetFilterDecay(
-              daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f) * sample_rate);
-          break;
-        }
-
-        case 102: {
-          engine.voice_manager.SetFilterSustain(
-              daisysp::fmax((float)cc.value / 127.f, 0.01f));
-          break;
-        }
-
-        case 103: {
-          engine.voice_manager.SetFilterRelease(
-              daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f) * sample_rate);
-          break;
-        }
-        }
-        break;
-      }
-      case NoteOn: {
-        auto note_msg = msg.AsNoteOn();
-
-        if (note_msg.velocity != 0)
-          engine.voice_manager.OnNoteOn(note_msg.note, note_msg.velocity);
-
-      } break;
-      case NoteOff: {
-        auto note_msg = msg.AsNoteOff();
-
-        engine.SetVol((float)note_msg.note);
-        engine.voice_manager.OnNoteOff(note_msg.note, note_msg.velocity);
-
-      } break;
-
-      case PitchBend: {
-        auto pitch_bend = msg.AsPitchBend();
-        float bend = (float)pitch_bend.value / 8192;
-        bend = powf(2, bend);
-
-        engine.voice_manager.SetPitchBend(bend);
-        break;
-      }
-      default:
-        break;
-      }
-    }
+    engine.ListenToMidi();
   }
 }
