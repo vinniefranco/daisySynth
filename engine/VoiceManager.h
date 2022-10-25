@@ -4,6 +4,7 @@
 
 #include "sys/system.h"
 
+#include "Note.h"
 #include "Voice.h"
 
 class VoiceManager {
@@ -16,7 +17,7 @@ private:
   Voice voices_[number_of_voices_];
   daisysp::Oscillator lfo_;
 
-  Voice *FindFreeVoice(int noteNUmber);
+  Voice *FindFreeVoice(Note *new_note);
 
 public:
   float last_sample;
@@ -35,17 +36,20 @@ public:
   }
 
   inline void OnNoteOn(int midi_note, int velocity) {
-    Voice *voice = FindFreeVoice(midi_note);
+    Note note = {.freq = midi_[midi_note],
+                 .key_follow = key_follow_[midi_note],
+                 .midi = midi_note,
+                 .velocity = daisysp::fmap((float)velocity, 0.001f, 1.f,
+                                           daisysp::Mapping::LOG)};
+
+    Voice *voice = FindFreeVoice(&note);
     if (!voice) {
       return;
     }
 
     ForEachVoice(IncrementAge());
 
-    voice->SetNoteNumber(
-        midi_note, midi_[midi_note],
-        daisysp::fmap((float)velocity, 0.001f, 1.f, daisysp::Mapping::LOG),
-        key_follow_[midi_note]);
+    voice->SetNote(note);
   }
   inline void OnNoteOff(int midi_note, int velocity) {
     ForEachVoice(ClearNoteNumber(midi_note));

@@ -56,6 +56,12 @@ void ADSR::SetReleaseRate(float rate) {
   releaseBase = -targetRatioDR * (1.0 - releaseCoef);
 }
 
+void ADSR::SetKillRate(float rate) {
+  killRate = rate;
+  killCoef = CalcCoef(rate, targetRatioDR);
+  killBase = -targetRatioDR * (1.0 - releaseCoef);
+}
+
 float ADSR::CalcCoef(float rate, float targetRatio) {
   return (rate <= 0) ? 0.0
                      : exp(-log((1.0 + targetRatio) / targetRatio) / rate);
@@ -105,6 +111,13 @@ float ADSR::Process() {
     break;
   case ENV_SUSTAIN:
     break;
+  case ENV_KILL:
+    output = killBase + output * killCoef;
+    if (output <= 0.0) {
+      output = 0.0;
+      state = ENV_IDLE;
+    }
+    break;
   case ENV_RELEASE:
     output = releaseBase + output * releaseCoef;
     if (output <= 0.0) {
@@ -122,6 +135,8 @@ void ADSR::Gate(int gate) {
     state = ENV_RELEASE;
   }
 }
+
+void ADSR::Kill() { state = ENV_KILL; }
 
 int ADSR::GetState() { return state; }
 

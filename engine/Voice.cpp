@@ -1,6 +1,7 @@
 #include "Voice.h"
 
 void Voice::Init(float new_sample_rate, float osc_amp) {
+  sample_rate = new_sample_rate;
   osc0_.Init(new_sample_rate);
   osc1_.Init(new_sample_rate);
 
@@ -8,6 +9,8 @@ void Voice::Init(float new_sample_rate, float osc_amp) {
   v_env.SetDecayRate(.3f * new_sample_rate);
   v_env.SetSustainLevel(.7f);
   v_env.SetReleaseRate(2.7f * new_sample_rate);
+  v_env.SetReleaseRate(2.7f * new_sample_rate);
+  v_env.SetKillRate(.0003f * new_sample_rate);
 
   f_env.SetAttackRate(.1f * new_sample_rate);
   f_env.SetDecayRate(.3f * new_sample_rate);
@@ -16,8 +19,9 @@ void Voice::Init(float new_sample_rate, float osc_amp) {
 }
 
 void Voice::ClearNoteNumber(int midi_note) {
-  if (note_number == midi_note) {
-    is_stealable = true;
+  if (note.midi == midi_note) {
+    state = VOICE_STEALABLE;
+
     v_env.Gate(false);
     f_env.Gate(false);
   }
@@ -33,7 +37,7 @@ float Voice::Process() {
   float v_env_value = v_env.Process();
   float f_env_value = f_env.Process();
 
-  flt.SetCutoffMod(f_env_value * (f_env_amount + key_follow_amount) +
+  flt.SetCutoffMod(f_env_value * (f_env_amount + note.key_follow) +
                    (lfo_value * f_lfo_amount));
 
   if (v_env.GetState() == v_env.ENV_IDLE) {
@@ -41,7 +45,7 @@ float Voice::Process() {
     return 0.0f;
   }
 
-  float output = flt.Process(osc_sum) * v_env_value * velocity;
+  float output = flt.Process(osc_sum) * v_env_value * note.velocity;
 
   return output;
 }
@@ -51,32 +55,33 @@ void Voice::ResetPhasor() {
   osc1_.ResetPhasor();
 }
 
-void Voice::SetNoteNumber(int midi_note, float new_freq, float new_velocity,
-                          float new_key_follow_amount) {
-  if (note_number != midi_note) {
+void Voice::StealVoice(Note new_note) {}
+
+bool Voice::IsPlayable() {
+  return (state == VOICE_STEALABLE || state == VOICE_PLAYING ||
+          state == VOICE_STOLEN);
+}
+
+void Voice::SetNote(Note new_note) {
+  if (note.midi != new_note.midi) {
     Reset();
     ResetPhasor();
   }
 
-  key_follow_amount = new_key_follow_amount;
-  note_number = midi_note;
-  freq = new_freq + rand_walk[walk_cursor % 6];
+  note = new_note;
+  note.freq = note.freq + rand_walk[walk_cursor % 6];
 
   walk_cursor++;
 
-  osc0_.SetFreq((freq * mOscOnePitchAmount) * bend);
-  osc1_.SetFreq((freq * mOscTwoPitchAmount + detune) * bend);
+  osc0_.SetFreq((note.freq * mOscOnePitchAmount) * bend);
+  osc1_.SetFreq((note.freq * mOscTwoPitchAmount + detune) * bend);
 
-  velocity = new_velocity;
-  is_active = true;
-  is_stealable = false;
+  state = VOICE_PLAYING;
   v_env.Gate(true);
   f_env.Gate(true);
 }
 
 void Voice::Reset() {
-  note_number = -1;
-  velocity = 0;
   v_env.Reset();
   f_env.Reset();
   flt.Reset();
@@ -86,7 +91,7 @@ void Voice::SetDetune(float new_detune) { detune = new_detune; }
 void Voice::SetFilterEnvelopeAmount(float amount) { f_env_amount = amount; }
 void Voice::SetFilterLFOAmount(float amount) { f_lfo_amount = amount; }
 
-void Voice::SetFree() { is_active = false; }
+void Voice::SetFree() { state = VOICE_FREE; }
 
 void Voice::SetLFOValue(float value) { lfo_value = value; }
 
@@ -96,8 +101,8 @@ void Voice::SetOscTwoPitchAmount(float amount) { mOscTwoPitchAmount = amount; }
 
 void Voice::SetPitchBend(float amount) {
   bend = amount;
-  osc0_.SetFreq((freq - detune * mOscOnePitchAmount) * bend);
-  osc1_.SetFreq((freq + detune) * bend);
+  osc0_.SetFreq((note.freq - detune * mOscOnePitchAmount) * bend);
+  osc1_.SetFreq((note.freq + detune) * bend);
 }
 
 void Voice::SetWavetable(WaveSlot *wt_slots) {

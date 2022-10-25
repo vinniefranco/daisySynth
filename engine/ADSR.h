@@ -36,9 +36,11 @@ public:
   float GetOutput(void);
   int GetState(void);
   void Gate(int on);
+  void Kill();
   void SetAttackRate(float rate);
   void SetDecayRate(float rate);
   void SetReleaseRate(float rate);
+  void SetKillRate(float rate);
   void SetSustainLevel(float level);
   void SetTargetRatioA(float targetRatio);
   void SetTargetRatioDR(float targetRatio);
@@ -49,7 +51,8 @@ public:
     ENV_ATTACK,
     ENV_DECAY,
     ENV_SUSTAIN,
-    ENV_RELEASE
+    ENV_RELEASE,
+    ENV_KILL
   };
 
 protected:
@@ -67,6 +70,9 @@ protected:
   float attackBase;
   float decayBase;
   float releaseBase;
+  float killBase;
+  float killCoef;
+  float killRate;
 
   float CalcCoef(float rate, float targetRatio);
 };

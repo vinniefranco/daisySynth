@@ -20,25 +20,25 @@ void VoiceManager::Init(float sample_rate) {
   }
 }
 
-Voice *VoiceManager::FindFreeVoice(int midi_note) {
+Voice *VoiceManager::FindFreeVoice(Note *new_note) {
   Voice *free_voice = NULL;
   uint32_t oldest = 0;
   int8_t oldest_idx = -1;
 
   for (int i = 0; i < number_of_voices_; i++) {
     // Priority is a free voice
-    if (!voices_[i].is_active) {
+    if (voices_[i].state == Voice::VOICE_FREE) {
       free_voice = &(voices_[i]);
       free_voice->age = 0;
       free_voice->ResetPhasor();
     }
     // If a voice has played more than once and matches this note
-    if (voices_[i].age > 1 && voices_[i].note_number == midi_note) {
+    if (voices_[i].age > 1 && voices_[i].note.midi == new_note->midi) {
       free_voice = &(voices_[i]);
       free_voice->age = 0;
     }
     // The oldest stealable voice
-    if (voices_[i].age > oldest && voices_[i].is_stealable) {
+    if (voices_[i].age > oldest && voices_[i].state == Voice::VOICE_STEALABLE) {
       oldest = voices_[i].age;
       oldest_idx = i;
     }
@@ -57,7 +57,7 @@ void VoiceManager::Process(float *left, float *right) {
   float lfo_value = lfo_.Process();
   for (int i = 0; i < number_of_voices_; i++) {
     Voice &voice = voices_[i];
-    if (voice.is_active) {
+    if (voice.IsPlayable()) {
       voice.SetLFOValue(lfo_value);
       output += voice.Process();
     }
