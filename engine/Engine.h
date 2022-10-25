@@ -100,8 +100,6 @@ public:
 
       float value = GetCutoff();
 
-      uint_fast8_t position = value * 120.0f;
-
       sprintf(pot, "x:" FLT_FMT3, FLT_VAR3(x));
       display.SetCursor(0, 52);
       display.WriteString(pot, Font_6x8, true);

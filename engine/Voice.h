@@ -6,10 +6,11 @@
 #include "EnvFilter.h"
 #include "Note.h"
 #include "WaveTableOsc.h"
+#include <math.h>
 
 class Voice {
 private:
-  uint32_t age;
+  int32_t age;
   float bend;
   float detune;
   ADSR f_env;
@@ -34,9 +35,10 @@ public:
   friend class VoiceManager;
 
   Voice()
-      : age(0), bend(1.0f), detune(0.01f), f_env_amount(0.0f), m_osc_mix(0.5f),
+      : age(0), bend(1.0f), detune(0.01f), f_env_amount(0.0f),
         f_lfo_amount(0.0f), lfo_value(0.0f), mOscOnePitchAmount(1.0f),
-        mOscTwoPitchAmount(1.0f), state(VOICE_FREE), walk_cursor(0){};
+        mOscTwoPitchAmount(1.0f), m_osc_mix(0.5f), state(VOICE_FREE),
+        walk_cursor(0){};
 
   enum voiceState {
     VOICE_FREE = 0,

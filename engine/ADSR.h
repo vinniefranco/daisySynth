@@ -32,7 +32,7 @@ class ADSR {
 public:
   ADSR(void);
   ~ADSR(void);
-  float Process(void);
+  float Process(bool allow_tail);
   float GetOutput(void);
   int GetState(void);
   void Gate(int on);

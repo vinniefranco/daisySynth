@@ -10,12 +10,13 @@ void Voice::Init(float new_sample_rate, float osc_amp) {
   v_env.SetSustainLevel(.7f);
   v_env.SetReleaseRate(2.7f * new_sample_rate);
   v_env.SetReleaseRate(2.7f * new_sample_rate);
-  v_env.SetKillRate(.0003f * new_sample_rate);
+  v_env.SetKillRate(.01f * new_sample_rate);
 
   f_env.SetAttackRate(.1f * new_sample_rate);
   f_env.SetDecayRate(.3f * new_sample_rate);
   f_env.SetSustainLevel(.7f);
   f_env.SetReleaseRate(2.7f * new_sample_rate);
+  f_env.SetKillRate(.01f * new_sample_rate);
 }
 
 void Voice::ClearNoteNumber(int midi_note) {
@@ -30,20 +31,24 @@ void Voice::ClearNoteNumber(int midi_note) {
 void Voice::IncrementAge() { age++; }
 
 float Voice::Process() {
+  if (v_env.GetState() == v_env.ENV_IDLE) {
+    if (state == VOICE_STOLEN) {
+      SetNote(next_note);
+    } else {
+      SetFree();
+      return 0.0f;
+    }
+  }
+
   float osc0_out = osc0_.Process();
   float osc1_out = osc1_.Process();
   float osc_sum = ((1 - m_osc_mix) * osc0_out) + (m_osc_mix * osc1_out);
 
-  float v_env_value = v_env.Process();
-  float f_env_value = f_env.Process();
+  float v_env_value = v_env.Process(state == VOICE_STOLEN);
+  float f_env_value = f_env.Process(state == VOICE_STOLEN);
 
   flt.SetCutoffMod(f_env_value * (f_env_amount + note.key_follow) +
                    (lfo_value * f_lfo_amount));
-
-  if (v_env.GetState() == v_env.ENV_IDLE) {
-    SetFree();
-    return 0.0f;
-  }
 
   float output = flt.Process(osc_sum) * v_env_value * note.velocity;
 
@@ -55,7 +60,10 @@ void Voice::ResetPhasor() {
   osc1_.ResetPhasor();
 }
 
-void Voice::StealVoice(Note new_note) {}
+void Voice::StealVoice(Note new_note) {
+  next_note = new_note;
+  state = VOICE_STOLEN;
+}
 
 bool Voice::IsPlayable() {
   return (state == VOICE_STEALABLE || state == VOICE_PLAYING ||
