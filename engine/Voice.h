@@ -30,6 +30,8 @@ private:
   float sample_rate;
   int state;
   uint8_t walk_cursor;
+  uint32_t half_second;
+  uint32_t cursor;
 
 public:
   friend class VoiceManager;
@@ -38,7 +40,7 @@ public:
       : age(0), bend(1.0f), detune(0.01f), f_env_amount(0.0f),
         f_lfo_amount(0.0f), lfo_value(0.0f), mOscOnePitchAmount(1.0f),
         mOscTwoPitchAmount(1.0f), m_osc_mix(0.5f), state(VOICE_FREE),
-        walk_cursor(0){};
+        walk_cursor(0), cursor(0){};
 
   enum voiceState {
     VOICE_FREE = 0,

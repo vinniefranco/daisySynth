@@ -105,16 +105,14 @@ void Engine::ListenToMidi() {
       }
 
       case 90: {
-        voice_manager.SetVolumeAttack(daisysp::fmap((float)cc.value / 127.f,
-                                                    0.05f, 5.f,
-                                                    daisysp::Mapping::LOG) *
-                                      sample_rate);
+        voice_manager.SetVolumeAttack(daisysp::fmap(
+            (float)cc.value / 127.f, 0.05f, 5.f, daisysp::Mapping::LOG));
         break;
       }
 
       case 91: {
         voice_manager.SetVolumeDecay(
-            daisysp::fmap((float)cc.value / 127.f, 0.05f, 5.f) * sample_rate);
+            daisysp::fmap((float)cc.value / 127.f, 0.05f, 5.f));
         break;
       }
 
@@ -126,21 +124,19 @@ void Engine::ListenToMidi() {
 
       case 93: {
         voice_manager.SetVolumeRelease(
-            daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f) * sample_rate);
+            daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f));
         break;
       }
 
       case 100: {
-        voice_manager.SetFilterAttack(daisysp::fmap((float)cc.value / 127.f,
-                                                    0.005f, 5.f,
-                                                    daisysp::Mapping::LOG) *
-                                      sample_rate);
+        voice_manager.SetFilterAttack(daisysp::fmap(
+            (float)cc.value / 127.f, 0.005f, 5.f, daisysp::Mapping::LOG));
         break;
       }
 
       case 101: {
         voice_manager.SetFilterDecay(
-            daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f) * sample_rate);
+            daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f));
         break;
       }
 
@@ -152,7 +148,7 @@ void Engine::ListenToMidi() {
 
       case 103: {
         voice_manager.SetFilterRelease(
-            daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f) * sample_rate);
+            daisysp::fmap((float)cc.value / 127.f, 0.1f, 5.f));
         break;
       }
       }

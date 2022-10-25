@@ -2,21 +2,25 @@
 
 void Voice::Init(float new_sample_rate, float osc_amp) {
   sample_rate = new_sample_rate;
+  half_second = sample_rate / 2;
+
   osc0_.Init(new_sample_rate);
   osc1_.Init(new_sample_rate);
 
-  v_env.SetAttackRate(.1f * new_sample_rate);
-  v_env.SetDecayRate(.3f * new_sample_rate);
+  v_env.Init(new_sample_rate);
+  v_env.SetAttackRate(.1f);
+  v_env.SetDecayRate(.3f);
   v_env.SetSustainLevel(.7f);
-  v_env.SetReleaseRate(2.7f * new_sample_rate);
-  v_env.SetReleaseRate(2.7f * new_sample_rate);
-  v_env.SetKillRate(.01f * new_sample_rate);
+  v_env.SetReleaseRate(2.7f);
+  v_env.SetReleaseRate(2.7f);
+  v_env.SetKillRate(.01f);
 
-  f_env.SetAttackRate(.1f * new_sample_rate);
-  f_env.SetDecayRate(.3f * new_sample_rate);
+  f_env.Init(new_sample_rate);
+  f_env.SetAttackRate(.1f);
+  f_env.SetDecayRate(.3f);
   f_env.SetSustainLevel(.7f);
-  f_env.SetReleaseRate(2.7f * new_sample_rate);
-  f_env.SetKillRate(.01f * new_sample_rate);
+  f_env.SetReleaseRate(2.7f);
+  f_env.SetKillRate(.01f);
 }
 
 void Voice::ClearNoteNumber(int midi_note) {
@@ -51,6 +55,21 @@ float Voice::Process() {
                    (lfo_value * f_lfo_amount));
 
   float output = flt.Process(osc_sum) * v_env_value * note.velocity;
+
+  // Scavenge when they've been quiet for half a second
+  // FIXME:: This feels ghetto.
+  if (output == 0.0f) {
+    cursor++;
+
+    if (cursor > half_second) {
+      cursor = 0;
+      Reset();
+      ResetPhasor();
+      SetFree();
+
+      return 0.0f;
+    }
+  }
 
   return output;
 }

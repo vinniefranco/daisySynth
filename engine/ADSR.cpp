@@ -26,39 +26,29 @@
 #include "ADSR.h"
 #include <math.h>
 
-ADSR::ADSR(void) {
-  Reset();
-  SetAttackRate(0);
-  SetDecayRate(0);
-  SetReleaseRate(0);
-  SetSustainLevel(1.0);
-  SetTargetRatioA(0.3);
-  SetTargetRatioDR(0.0001);
-}
-
-ADSR::~ADSR(void) {}
+void ADSR::Init(float new_sample_rate) { sample_rate = new_sample_rate; }
 
 void ADSR::SetAttackRate(float rate) {
-  attackRate = rate;
-  attackCoef = CalcCoef(rate, targetRatioA);
+  attackRate = rate * sample_rate;
+  attackCoef = CalcCoef(attackRate, targetRatioA);
   attackBase = (1.0 + targetRatioA) * (1.0 - attackCoef);
 }
 
 void ADSR::SetDecayRate(float rate) {
-  decayRate = rate;
-  decayCoef = CalcCoef(rate, targetRatioDR);
+  decayRate = rate * sample_rate;
+  decayCoef = CalcCoef(decayRate, targetRatioDR);
   decayBase = (sustainLevel - targetRatioDR) * (1.0 - decayCoef);
 }
 
 void ADSR::SetReleaseRate(float rate) {
-  releaseRate = rate;
-  releaseCoef = CalcCoef(rate, targetRatioDR);
+  releaseRate = rate * sample_rate;
+  releaseCoef = CalcCoef(releaseRate, targetRatioDR);
   releaseBase = -targetRatioDR * (1.0 - releaseCoef);
 }
 
 void ADSR::SetKillRate(float rate) {
-  killRate = rate;
-  killCoef = CalcCoef(rate, targetRatioDR);
+  killRate = rate * sample_rate;
+  killCoef = CalcCoef(killRate, targetRatioDR);
   killBase = -targetRatioDR * (1.0 - releaseCoef);
 }
 

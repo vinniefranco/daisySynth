@@ -30,8 +30,18 @@
 
 class ADSR {
 public:
-  ADSR(void);
-  ~ADSR(void);
+  ADSR(void) {
+    Reset();
+    SetAttackRate(0);
+    SetDecayRate(0);
+    SetReleaseRate(0);
+    SetSustainLevel(1.0);
+    SetTargetRatioA(0.3);
+    SetTargetRatioDR(0.0001);
+  }
+  ~ADSR(void) {}
+
+  void Init(float new_sample_rate);
   float Process(bool allow_tail);
   float GetOutput(void);
   int GetState(void);
@@ -73,6 +83,7 @@ protected:
   float killBase;
   float killCoef;
   float killRate;
+  float sample_rate;
 
   float CalcCoef(float rate, float targetRatio);
 };

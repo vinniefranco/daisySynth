@@ -23,80 +23,33 @@ void VoiceManager::Init(float sample_rate) {
 
 Voice *VoiceManager::FindFreeVoice(Note *new_note) {
   Voice *free_voice = NULL;
-
-  int8_t free_voice_idx = -1;
-
   int32_t oldest = 0;
   int8_t oldest_idx = -1;
 
-  int32_t oldest_matching = -1;
-  int8_t oldest_matching_idx = -1;
-
-  int floor_note = 127;
-  int8_t floor_idx = -1;
-
-  int ceil_note = 0;
-  int8_t ceil_idx = -1;
-
   for (int i = 0; i < number_of_voices_; i++) {
+    // If a voice has played more than once and matches this note
+    if (voices_[i].age > 1 && voices_[i].note.midi == new_note->midi) {
+      free_voice = &(voices_[i]);
+      free_voice->age = 0;
+      break;
+    }
+
+    // Priority is a free voice
     if (voices_[i].state == Voice::VOICE_FREE) {
-      free_voice_idx = i;
+      free_voice = &(voices_[i]);
+      free_voice->age = 0;
+      free_voice->ResetPhasor();
+      break;
     }
-
-    // Set oldest matching
-    if (voices_[i].note.midi == new_note->midi &&
-        voices_[i].age > oldest_matching) {
-      oldest_matching = voices_[i].age;
-      oldest_matching_idx = i;
-    }
-
-    // Set lowest
-    if (voices_[i].note.midi <= floor_note) {
-      floor_idx = i;
-      floor_note = voices_[i].note.midi;
-    }
-
-    // Set highest
-    if (voices_[i].note.midi >= ceil_note) {
-      ceil_idx = i;
-      ceil_note = voices_[i].note.midi;
-    }
-
-    if (voices_[i].state == Voice::VOICE_STEALABLE && voices_[i].age > oldest) {
+    // The oldest stealable voice
+    if (voices_[i].age > oldest && voices_[i].state == Voice::VOICE_STEALABLE) {
       oldest = voices_[i].age;
       oldest_idx = i;
     }
   }
 
-  // Try to assign oldest matching first.
-  if (oldest_matching_idx != -1 && oldest_matching > 2) {
-    free_voice = &(voices_[oldest_matching_idx]);
-    free_voice->age = 0;
-
-    return free_voice;
-    // no need to reset phasor
-  }
-
-  // Try to assign oldest that is not the floor or ceiling
-  if (oldest_idx != -1 && oldest_idx != floor_idx && oldest_idx != ceil_idx) {
+  if (free_voice == NULL && oldest_idx != -1) {
     voices_[oldest_idx].StealVoice(*new_note);
-
-    return NULL;
-  }
-
-  // Attempt to find a free voice.
-  if (free_voice_idx != -1) {
-    free_voice = &(voices_[free_voice_idx]);
-    free_voice->age = 0;
-    free_voice->ResetPhasor();
-
-    return free_voice;
-  }
-
-  if (oldest_idx != -1) {
-    voices_[oldest_idx].StealVoice(*new_note);
-
-    return NULL;
   }
 
   return free_voice;
