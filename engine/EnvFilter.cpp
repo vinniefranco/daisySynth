@@ -26,3 +26,22 @@ float EnvFilter::Process(float inputValue) {
     return 0.0;
   }
 }
+
+void EnvFilter::SetCutoff(float newCutoff) {
+  cutoff = newCutoff;
+  CalculateFeedbackAmount();
+};
+
+void EnvFilter::SetResonance(float newResonance) {
+  resonance = newResonance;
+  CalculateFeedbackAmount();
+};
+
+void EnvFilter::SetFilterMode(FilterMode newMode) { mode = newMode; }
+
+void EnvFilter::SetCutoffMod(float newCutoffMod) {
+  cutoffMod = newCutoffMod;
+  CalculateFeedbackAmount();
+}
+
+void EnvFilter::Reset() { buf0 = buf1 = buf2 = buf3 = 0.0f; }

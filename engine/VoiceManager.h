@@ -2,7 +2,6 @@
 #define __VOICEMANAGER__
 #pragma once
 
-#include "Effects/chorus.h"
 #include "sys/system.h"
 
 #include "Voice.h"
@@ -17,7 +16,7 @@ private:
   Voice voices_[number_of_voices_];
   daisysp::Oscillator lfo_;
 
-  Voice *findFreeVoice(int noteNUmber);
+  Voice *FindFreeVoice(int noteNUmber);
 
 public:
   float last_sample;
@@ -25,23 +24,9 @@ public:
   VoiceManager() : volume_(1.0f), last_sample(0.f){};
   ~VoiceManager(){};
 
+  void Init(float sample_rate);
   void Process(float *left, float *right);
-
-  inline void SetVolume(float new_vol) { volume_ = new_vol; };
-  inline void Init(float sample_rate) {
-    for (int i = 0; i < number_of_voices_; i++) {
-      Voice &voice = voices_[i];
-      voice.Init(sample_rate, 0.5f);
-    }
-    lfo_.Init(sample_rate);
-    lfo_.SetWaveform(lfo_.WAVE_SIN);
-    lfo_.SetAmp(0.1f);
-
-    for (int x = 0; x < 127; x++) {
-      midi_[x] = daisysp::mtof(x);
-      key_follow_[x] = daisysp::fmap((float)x, 0.001f, 0.16f);
-    }
-  }
+  void SetVolume(float new_vol);
 
 #define ForEachVoice(expr)                                                     \
   for (int i = 0; i < number_of_voices_; i++) {                                \
@@ -50,7 +35,7 @@ public:
   }
 
   inline void OnNoteOn(int midi_note, int velocity) {
-    Voice *voice = findFreeVoice(midi_note);
+    Voice *voice = FindFreeVoice(midi_note);
     if (!voice) {
       return;
     }

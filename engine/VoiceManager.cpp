@@ -1,21 +1,49 @@
 #include "VoiceManager.h"
 
-Voice *VoiceManager::findFreeVoice(int midi_note) {
+void VoiceManager::Init(float sample_rate) {
+  for (int i = 0; i < number_of_voices_; i++) {
+    Voice &voice = voices_[i];
+    voice.Init(sample_rate, 0.5f);
+  }
+  lfo_.Init(sample_rate);
+  lfo_.SetWaveform(lfo_.WAVE_SIN);
+  lfo_.SetAmp(0.1f);
+
+  for (uint8_t x = 0; x < 127; x++) {
+    midi_[x] = daisysp::mtof(x);
+    if (x == 0) {
+      key_follow_[x] = 0.0f;
+    } else {
+      key_follow_[x] =
+          daisysp::fmap((float)x / 127.f, 0.0001f, 0.5f, daisysp::Mapping::LOG);
+    }
+  }
+}
+
+Voice *VoiceManager::FindFreeVoice(int midi_note) {
   Voice *free_voice = NULL;
   uint32_t oldest = 0;
-  uint8_t oldest_idx = -1;
+  int8_t oldest_idx = -1;
 
   for (int i = 0; i < number_of_voices_; i++) {
+    // Priority is a free voice
     if (!voices_[i].is_active) {
       free_voice = &(voices_[i]);
       free_voice->age = 0;
+      free_voice->ResetPhasor();
     }
+    // If a voice has played more than once and matches this note
+    if (voices_[i].age > 1 && voices_[i].note_number == midi_note) {
+      free_voice = &(voices_[i]);
+      free_voice->age = 0;
+    }
+    // The oldest stealable voice
     if (voices_[i].age > oldest && voices_[i].is_stealable) {
       oldest = voices_[i].age;
       oldest_idx = i;
     }
   }
-  if (free_voice == NULL) {
+  if (free_voice == NULL && oldest_idx != -1) {
     free_voice = &(voices_[oldest_idx]);
     free_voice->age = 0;
     free_voice->ResetPhasor();
@@ -35,10 +63,13 @@ void VoiceManager::Process(float *left, float *right) {
     }
   }
 
-  output = volume_ * output;
+  // Saturate the signal a bit
+  output = tanh(volume_ * output);
 
   last_sample = output;
 
   *left = output;
   *right = output;
 }
+
+void VoiceManager::SetVolume(float new_vol) { volume_ = new_vol; };

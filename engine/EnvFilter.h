@@ -18,20 +18,11 @@ public:
     CalculateFeedbackAmount();
   }
   float Process(float inputValue);
-  inline void SetCutoff(float newCutoff) {
-    cutoff = newCutoff;
-    CalculateFeedbackAmount();
-  };
-  inline void SetResonance(float newResonance) {
-    resonance = newResonance;
-    CalculateFeedbackAmount();
-  };
-  inline void SetFilterMode(FilterMode newMode) { mode = newMode; }
-  inline void SetCutoffMod(float newCutoffMod) {
-    cutoffMod = newCutoffMod;
-    CalculateFeedbackAmount();
-  }
-  void Reset() { buf0 = buf1 = buf2 = buf3 = 0.0; }
+  void SetCutoff(float newCutoff);
+  void SetResonance(float newResonance);
+  void SetFilterMode(FilterMode newMode);
+  void SetCutoffMod(float newCutoffMod);
+  void Reset();
 
 private:
   float cutoff;

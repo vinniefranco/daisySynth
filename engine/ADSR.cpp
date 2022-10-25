@@ -83,3 +83,51 @@ void ADSR::SetTargetRatioDR(float targetRatio) {
   decayBase = (sustainLevel - targetRatioDR) * (1.0 - decayCoef);
   releaseBase = -targetRatioDR * (1.0 - releaseCoef);
 }
+
+float ADSR::Process() {
+  switch (state) {
+  case ENV_IDLE:
+
+    break;
+  case ENV_ATTACK:
+    output = attackBase + output * attackCoef;
+    if (output >= 1.0) {
+      output = 1.0;
+      state = ENV_DECAY;
+    }
+    break;
+  case ENV_DECAY:
+    output = decayBase + output * decayCoef;
+    if (output <= sustainLevel) {
+      output = sustainLevel;
+      state = ENV_SUSTAIN;
+    }
+    break;
+  case ENV_SUSTAIN:
+    break;
+  case ENV_RELEASE:
+    output = releaseBase + output * releaseCoef;
+    if (output <= 0.0) {
+      output = 0.0;
+      state = ENV_IDLE;
+    }
+  }
+  return output;
+}
+
+void ADSR::Gate(int gate) {
+  if (gate) {
+    state = ENV_ATTACK;
+  } else if (state != ENV_IDLE) {
+    state = ENV_RELEASE;
+  }
+}
+
+int ADSR::GetState() { return state; }
+
+void ADSR::Reset() {
+  state = ENV_IDLE;
+  output = 0.0;
+}
+
+float ADSR::GetOutput() { return output; }
