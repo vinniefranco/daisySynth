@@ -10,7 +10,7 @@ Voice *VoiceManager::findFreeVoice(int midi_note) {
       free_voice = &(voices_[i]);
       free_voice->age = 0;
     }
-    if (voices_[i].is_active && voices_[i].age > oldest) {
+    if (voices_[i].age > oldest && voices_[i].is_stealable) {
       oldest = voices_[i].age;
       oldest_idx = i;
     }
@@ -35,7 +35,7 @@ void VoiceManager::Process(float *left, float *right) {
     }
   }
 
-  output *= volume_;
+  output = volume_ * output;
 
   last_sample = output;
 

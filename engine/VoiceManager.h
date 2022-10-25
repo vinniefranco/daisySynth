@@ -9,19 +9,20 @@
 
 class VoiceManager {
 private:
+  static const int number_of_voices_ = 16;
+
   float midi_[127];
   float key_follow_[127];
   float volume_;
-  static const int number_of_voices_ = 16;
   Voice voices_[number_of_voices_];
   daisysp::Oscillator lfo_;
 
   Voice *findFreeVoice(int noteNUmber);
 
 public:
-  float last_sample = 0.0f;
+  float last_sample;
 
-  VoiceManager(){};
+  VoiceManager() : volume_(1.0f), last_sample(0.f){};
   ~VoiceManager(){};
 
   void Process(float *left, float *right);
@@ -54,7 +55,7 @@ public:
       return;
     }
 
-    ForEachVoice(age += 1);
+    ForEachVoice(IncrementAge());
 
     voice->SetNoteNumber(
         midi_note, midi_[midi_note],
