@@ -13,6 +13,27 @@ void Engine::HandleAudioCallback(daisy::AudioHandle::OutputBuffer out,
   load_meter->OnBlockEnd();
 }
 
+void Engine::Init(daisy::DaisySeed *seed, daisy::CpuLoadMeter *meter,
+                  daisy::MidiUsbHandler *new_midi, float new_sample_rate) {
+  hw = seed;
+
+  sample_rate = new_sample_rate;
+  load_meter = meter;
+  midi = new_midi;
+
+  load_meter->Init(sample_rate, hw->AudioBlockSize());
+
+  // Config Display
+  disp_cfg.driver_config.transport_config.pin_config.dc = hw->GetPin(11);
+  disp_cfg.driver_config.transport_config.pin_config.reset = hw->GetPin(13);
+  display.Init(disp_cfg);
+
+  voice_manager.Init(sample_rate);
+  voice_manager.SetLFOFrequency(0.03f);
+
+  daisy::System::Delay(1000);
+}
+
 void Engine::Process(float *left, float *right) {
   voice_manager.Process(left, right);
 
@@ -181,5 +202,56 @@ void Engine::ListenToMidi() {
     default:
       break;
     }
+  }
+}
+
+void Engine::tick() {
+  if (ticker % 100 == 0) {
+    const float avg_load = load_meter->GetAvgCpuLoad();
+
+    display.Fill(false);
+
+    sprintf(pot, "%02d", voice_manager.active_voices);
+    display.SetCursor(2, 28);
+    display.WriteString(pot, Font_6x8, true);
+
+    uint8_t load = (avg_load * 127.f);
+
+    // display.DrawRect(0, 26, 127, 36, true);
+    display.DrawLine(14, 28, load + 14, 28, true);
+    display.DrawLine(14, 30, load + 16, 30, true);
+    display.DrawLine(14, 32, load + 16, 32, true);
+    display.DrawLine(14, 34, load + 14, 34, true);
+
+    float value = GetCutoff();
+
+    float neg[128];
+    float pos[128];
+    for (size_t i = 0; i < 128; i++) {
+      pos[i] = 0.0f;
+      neg[i] = 0.0f;
+      if (screen_buffer[i] > 0.0000f) {
+        pos[i] = screen_buffer[i];
+      } else if (screen_buffer[i] < 0.0000f) {
+        neg[i] = fabs(screen_buffer[i]);
+      }
+    }
+
+    for (size_t i = 0; i < 128; i++) {
+      uint8_t y1 = (uint8_t)daisysp::fmap(pos[i] * 1.3f, 1.0f, 24.f,
+                                          daisysp::Mapping::LINEAR);
+
+      uint8_t y2 = (uint8_t)daisysp::fmap(neg[i] * 1.3f, 1.0f, 20.f,
+                                          daisysp::Mapping::LINEAR);
+
+      if (y1 > 0) {
+        display.DrawPixel(i, 27 - y2, true);
+      }
+      if (y2 > 0) {
+        display.DrawPixel(i, 35 + y1, true);
+      }
+    }
+
+    display.Update();
   }
 }

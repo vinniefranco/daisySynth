@@ -71,7 +71,10 @@ void VoiceManager::Process(float *left, float *right) {
   // Saturate the signal a bit
   output = tanh(volume_ * output);
 
-  last_sample = output;
+  if (buffer_throttle % 3 == 0) {
+    last_sample = output;
+  }
+  buffer_throttle++;
 
   *left = output;
   *right = output;

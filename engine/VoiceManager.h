@@ -11,6 +11,8 @@ class VoiceManager {
 private:
   static const int number_of_voices_ = 12;
 
+  uint8_t buffer_throttle = 0;
+
   float midi_[127];
   float key_follow_[127];
   float volume_;
