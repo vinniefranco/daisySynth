@@ -100,7 +100,7 @@ public:
 
       float value = GetCutoff();
 
-      sprintf(pot, "x:" FLT_FMT3, FLT_VAR3(x));
+      sprintf(pot, "x: %d", voice_manager.active_voices);
       display.SetCursor(0, 52);
       display.WriteString(pot, Font_6x8, true);
 

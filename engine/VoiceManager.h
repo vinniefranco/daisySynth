@@ -9,7 +9,7 @@
 
 class VoiceManager {
 private:
-  static const int number_of_voices_ = 16;
+  static const int number_of_voices_ = 12;
 
   float midi_[127];
   float key_follow_[127];
@@ -21,8 +21,9 @@ private:
 
 public:
   float last_sample;
+  uint8_t active_voices;
 
-  VoiceManager() : volume_(1.0f), last_sample(0.f){};
+  VoiceManager() : volume_(1.0f), last_sample(0.f), active_voices(0){};
   ~VoiceManager(){};
 
   void Init(float sample_rate);

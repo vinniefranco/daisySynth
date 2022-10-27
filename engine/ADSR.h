@@ -42,7 +42,7 @@ public:
   ~ADSR(void) {}
 
   void Init(float new_sample_rate);
-  float Process(bool allow_tail);
+  float Process();
   float GetOutput(void);
   int GetState(void);
   void Gate(int on);

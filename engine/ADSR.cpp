@@ -80,17 +80,7 @@ void ADSR::SetTargetRatioDR(float targetRatio) {
   releaseBase = -targetRatioDR * (1.0 - releaseCoef);
 }
 
-float ADSR::Process(bool kill_tail) {
-  if (kill_tail) {
-    output = killBase + output * killCoef;
-    if (output <= 0.0) {
-      output = 0.0;
-      state = ENV_IDLE;
-    }
-
-    return output;
-  }
-
+float ADSR::Process() {
   switch (state) {
   case ENV_IDLE:
     break;
@@ -110,12 +100,20 @@ float ADSR::Process(bool kill_tail) {
     break;
   case ENV_SUSTAIN:
     break;
+  case ENV_KILL:
+    output = killBase + output * killCoef;
+    if (output <= 0.0) {
+      output = 0.0;
+      state = ENV_IDLE;
+    }
+    break;
   case ENV_RELEASE:
     output = releaseBase + output * releaseCoef;
     if (output <= 0.0) {
       output = 0.0;
       state = ENV_IDLE;
     }
+    break;
   }
   return output;
 }

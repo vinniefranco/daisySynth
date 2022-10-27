@@ -6,6 +6,7 @@ void Voice::Init(float new_sample_rate, float osc_amp) {
 
   osc0_.Init(new_sample_rate);
   osc1_.Init(new_sample_rate);
+  osc2_.Init(new_sample_rate);
 
   v_env.Init(new_sample_rate);
   v_env.SetAttackRate(.1f);
@@ -13,14 +14,14 @@ void Voice::Init(float new_sample_rate, float osc_amp) {
   v_env.SetSustainLevel(.7f);
   v_env.SetReleaseRate(2.7f);
   v_env.SetReleaseRate(2.7f);
-  v_env.SetKillRate(.01f);
+  v_env.SetKillRate(.03f);
 
   f_env.Init(new_sample_rate);
   f_env.SetAttackRate(.1f);
   f_env.SetDecayRate(.3f);
   f_env.SetSustainLevel(.7f);
   f_env.SetReleaseRate(2.7f);
-  f_env.SetKillRate(.01f);
+  f_env.SetKillRate(.03f);
 }
 
 void Voice::ClearNoteNumber(int midi_note) {
@@ -38,6 +39,7 @@ float Voice::Process() {
   if (v_env.GetState() == v_env.ENV_IDLE) {
     if (state == VOICE_STOLEN) {
       SetNote(next_note);
+      return 0.0f;
     } else {
       SetFree();
       return 0.0f;
@@ -46,30 +48,32 @@ float Voice::Process() {
 
   float osc0_out = osc0_.Process();
   float osc1_out = osc1_.Process();
-  float osc_sum = ((1 - m_osc_mix) * osc0_out) + (m_osc_mix * osc1_out);
+  float osc2_out = osc2_.Process();
+  float osc_sum =
+      ((1 - m_osc_mix) * osc0_out) + (m_osc_mix * osc1_out) + (0.3f * osc2_out);
 
-  float v_env_value = v_env.Process(state == VOICE_STOLEN);
-  float f_env_value = f_env.Process(state == VOICE_STOLEN);
+  float v_env_value = v_env.Process();
+  float f_env_value = f_env.Process();
 
   flt.SetCutoffMod(f_env_value * (f_env_amount + note.key_follow) +
                    (lfo_value * f_lfo_amount));
 
   float output = flt.Process(osc_sum) * v_env_value * note.velocity;
 
-  // Scavenge when they've been quiet for half a second
-  // FIXME:: This feels ghetto.
-  if (output == 0.0f) {
-    cursor++;
+  // // Scavenge when they've been quiet for half a second
+  // // FIXME:: This feels ghetto.
+  // if (output == 0.0f) {
+  //   cursor++;
 
-    if (cursor > half_second) {
-      cursor = 0;
-      Reset();
-      ResetPhasor();
-      SetFree();
+  //   if (cursor > half_second) {
+  //     cursor = 0;
+  //     Reset();
+  //     ResetPhasor();
+  //     SetFree();
 
-      return 0.0f;
-    }
-  }
+  //     return 0.0f;
+  //   }
+  // }
 
   return output;
 }
@@ -77,11 +81,14 @@ float Voice::Process() {
 void Voice::ResetPhasor() {
   osc0_.ResetPhasor();
   osc1_.ResetPhasor();
+  osc2_.ResetPhasor();
 }
 
 void Voice::StealVoice(Note new_note) {
   next_note = new_note;
   state = VOICE_STOLEN;
+  v_env.Kill();
+  f_env.Kill();
 }
 
 bool Voice::IsPlayable() {
@@ -102,6 +109,7 @@ void Voice::SetNote(Note new_note) {
 
   osc0_.SetFreq((note.freq * mOscOnePitchAmount) * bend);
   osc1_.SetFreq((note.freq * mOscTwoPitchAmount + detune) * bend);
+  osc2_.SetFreq((note.freq * mOscTwoPitchAmount + (detune * 2)) * bend);
 
   state = VOICE_PLAYING;
   v_env.Gate(true);
@@ -135,4 +143,5 @@ void Voice::SetPitchBend(float amount) {
 void Voice::SetWavetable(WaveSlot *wt_slots) {
   osc0_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
   osc1_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
+  osc2_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
 }

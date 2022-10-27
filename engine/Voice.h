@@ -20,6 +20,7 @@ private:
   EnvFilter flt;
   WaveTableOsc osc0_;
   WaveTableOsc osc1_;
+  WaveTableOsc osc2_;
   float lfo_value;
   float mOscOnePitchAmount;
   float mOscTwoPitchAmount;
