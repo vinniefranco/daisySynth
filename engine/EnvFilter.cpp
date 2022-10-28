@@ -45,3 +45,11 @@ void EnvFilter::SetCutoffMod(float newCutoffMod) {
 }
 
 void EnvFilter::Reset() { buf0 = buf1 = buf2 = buf3 = 0.0f; }
+
+float EnvFilter::GetCalculatedCutoff() const {
+  return daisysp::fmax(daisysp::fmin(cutoff + cutoffMod, 0.99), 0.01);
+}
+
+void EnvFilter::CalculateFeedbackAmount() {
+  feedbackAmount = resonance + resonance / (1.0 - GetCalculatedCutoff());
+}

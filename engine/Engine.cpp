@@ -34,6 +34,25 @@ void Engine::Init(daisy::DaisySeed *seed, daisy::CpuLoadMeter *meter,
   daisy::System::Delay(1000);
 }
 
+void Engine::SetCutoff(float value) {
+  float cut_reading = value;
+  if (value > 0.01f) {
+    cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
+  } else {
+    cutoff = 0.0f;
+  }
+}
+
+void Engine::SetRes(int midi_value) { res = midiToFloat(midi_value) - 0.1f; }
+
+float Engine::GetCutoff() { return cutoff; }
+
+void Engine::SetVol(float new_x) { x = new_x; }
+
+float Engine::GetVol() { return x; }
+
+float Engine::GetRes() { return res; }
+
 void Engine::Process(float *left, float *right) {
   voice_manager.Process(left, right);
 

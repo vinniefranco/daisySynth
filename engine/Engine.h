@@ -44,30 +44,18 @@ public:
   Engine() {}
   ~Engine() {}
 
-  void HandleAudioCallback(daisy::AudioHandle::OutputBuffer out, size_t size);
-  void Process(float *left, float *right);
-  void writeToUIBuffer(float sample);
-  void ListenToMidi();
-  void tick();
-
   void Init(daisy::DaisySeed *seed, daisy::CpuLoadMeter *meter,
             daisy::MidiUsbHandler *new_midi, float new_sample_rate);
 
-  inline void SetCutoff(float value) {
-    float cut_reading = value;
-    if (value > 0.01f) {
-      cutoff = 0.9f * (cut_reading - cutoff) + cutoff;
-    } else {
-      cutoff = 0.0f;
-    }
-  }
-
-  inline void SetRes(int midi_value) { res = midiToFloat(midi_value) - 0.1f; }
-
-  inline float GetCutoff() { return cutoff; }
-
-  inline void SetVol(float new_x) { x = new_x; }
-  inline float GetVol() { return x; }
-
-  inline float GetRes() { return res; }
+  float GetCutoff();
+  float GetRes();
+  float GetVol();
+  void HandleAudioCallback(daisy::AudioHandle::OutputBuffer out, size_t size);
+  void ListenToMidi();
+  void Process(float *left, float *right);
+  void SetCutoff(float value);
+  void SetRes(int midi_value);
+  void SetVol(float new_x);
+  void tick();
+  void writeToUIBuffer(float sample);
 };

@@ -34,12 +34,8 @@ private:
   float buf2;
   float buf3;
   float cutoffMod;
-  inline float GetCalculatedCutoff() const {
-    return daisysp::fmax(daisysp::fmin(cutoff + cutoffMod, 0.99), 0.01);
-  }
-  inline void CalculateFeedbackAmount() {
-    feedbackAmount = resonance + resonance / (1.0 - GetCalculatedCutoff());
-  }
+  float GetCalculatedCutoff() const;
+  void CalculateFeedbackAmount();
 };
 
 #endif
