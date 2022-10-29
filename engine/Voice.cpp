@@ -60,21 +60,6 @@ float Voice::Process() {
 
   float output = flt.Process(osc_sum) * v_env_value * note.velocity;
 
-  // // Scavenge when they've been quiet for half a second
-  // // FIXME:: This feels ghetto.
-  // if (output == 0.0f) {
-  //   cursor++;
-
-  //   if (cursor > half_second) {
-  //     cursor = 0;
-  //     Reset();
-  //     ResetPhasor();
-  //     SetFree();
-
-  //     return 0.0f;
-  //   }
-  // }
-
   return output;
 }
 
@@ -109,7 +94,7 @@ void Voice::SetNote(Note new_note) {
 
   osc0_.SetFreq((note.freq * mOscOnePitchAmount) * bend);
   osc1_.SetFreq((note.freq * mOscTwoPitchAmount + detune) * bend);
-  osc2_.SetFreq((note.freq * mOscTwoPitchAmount + (detune * 2)) * bend);
+  osc2_.SetFreq((note.freq * mOscTwoPitchAmount - detune) * bend);
 
   state = VOICE_PLAYING;
   v_env.Gate(true);
