@@ -2,11 +2,9 @@
 
 void Voice::Init(float new_sample_rate, float osc_amp) {
   sample_rate = new_sample_rate;
-  half_second = sample_rate / 2;
 
   osc0_.Init(new_sample_rate);
   osc1_.Init(new_sample_rate);
-  osc2_.Init(new_sample_rate);
 
   v_env.Init(new_sample_rate);
   v_env.SetAttackRate(.1f);
@@ -48,9 +46,7 @@ float Voice::Process() {
 
   float osc0_out = osc0_.Process();
   float osc1_out = osc1_.Process();
-  float osc2_out = osc2_.Process();
-  float osc_sum =
-      ((1 - m_osc_mix) * osc0_out) + (m_osc_mix * osc1_out) + (0.3f * osc2_out);
+  float osc_sum = ((1 - m_osc_mix) * osc0_out) + (m_osc_mix * osc1_out);
 
   float v_env_value = v_env.Process();
   float f_env_value = f_env.Process();
@@ -66,7 +62,6 @@ float Voice::Process() {
 void Voice::ResetPhasor() {
   osc0_.ResetPhasor();
   osc1_.ResetPhasor();
-  osc2_.ResetPhasor();
 }
 
 void Voice::StealVoice(Note new_note) {
@@ -88,13 +83,13 @@ void Voice::SetNote(Note new_note) {
   }
 
   note = new_note;
+  // Wiggle it - jus a lil bit
   note.freq = note.freq + rand_walk[walk_cursor % 6];
 
   walk_cursor++;
 
   osc0_.SetFreq((note.freq * mOscOnePitchAmount) * bend);
   osc1_.SetFreq((note.freq * mOscTwoPitchAmount + detune) * bend);
-  osc2_.SetFreq((note.freq * mOscTwoPitchAmount - detune) * bend);
 
   state = VOICE_PLAYING;
   v_env.Gate(true);
@@ -128,5 +123,4 @@ void Voice::SetPitchBend(float amount) {
 void Voice::SetWavetable(WaveSlot *wt_slots) {
   osc0_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
   osc1_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
-  osc2_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
 }
