@@ -71,10 +71,7 @@ void Voice::StealVoice(Note new_note) {
   f_env.Kill();
 }
 
-bool Voice::IsPlayable() {
-  return (state == VOICE_STEALABLE || state == VOICE_PLAYING ||
-          state == VOICE_STOLEN);
-}
+bool Voice::IsPlayable() { return (state > VOICE_FREE); }
 
 void Voice::SetNote(Note new_note) {
   if (note.midi != new_note.midi) {
