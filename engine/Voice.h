@@ -1,12 +1,13 @@
+#ifndef __VOICE__
 #pragma once
 
+#include <math.h>
 #include "daisysp.h"
 
 #include "ADSR.h"
 #include "EnvFilter.h"
 #include "Note.h"
 #include "WaveTableOsc.h"
-#include <math.h>
 
 class Voice {
 private:
@@ -35,7 +36,7 @@ public:
   friend class VoiceManager;
 
   Voice()
-      : age(0), bend(1.0f), detune(0.01f), f_env_amount(0.0f),
+      : age(0), bend(1.0f), detune(0.6f), f_env_amount(0.0f),
         f_lfo_amount(0.0f), lfo_value(0.0f), mOscOnePitchAmount(1.0f),
         mOscTwoPitchAmount(1.0f), m_osc_mix(0.5f), state(VOICE_FREE),
         walk_cursor(0){};
@@ -70,3 +71,5 @@ public:
   void SetPitchBend(float amount);
   void SetWavetable(WaveSlot *wt_slots);
 };
+
+#endif // !__VOICE__

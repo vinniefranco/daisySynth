@@ -32,10 +32,10 @@ class ADSR {
 public:
   ADSR(void) {
     Reset();
-    SetAttackRate(0);
-    SetDecayRate(0);
-    SetReleaseRate(0);
-    SetSustainLevel(1.0);
+    SetAttackRate(0.01f);
+    SetDecayRate(0.0f);
+    SetReleaseRate(0.01f);
+    SetSustainLevel(0.9f);
     SetTargetRatioA(0.3);
     SetTargetRatioDR(0.0001);
   }

@@ -1,7 +1,7 @@
 #ifndef __FILTER__
 #define __FILTER__
-
 #pragma once
+
 #include "daisysp.h"
 
 class EnvFilter {

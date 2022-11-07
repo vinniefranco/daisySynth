@@ -8,7 +8,7 @@ void VoiceManager::Init(float sample_rate) {
   }
   lfo_.Init(sample_rate);
   lfo_.SetWaveform(lfo_.WAVE_SIN);
-  lfo_.SetAmp(0.1f);
+  lfo_.SetAmp(0.0f);
 
   for (uint8_t x = 0; x < 127; x++) {
     midi_[x] = daisysp::mtof(x);
@@ -63,7 +63,7 @@ void VoiceManager::Process(float *left, float *right) {
     Voice &voice = voices_[i];
     if (voice.IsPlayable()) {
       active_voices++;
-      voice.SetLFOValue(lfo_value);
+      // voice.SetLFOValue(lfo_value);
       output += voice.Process();
     }
   }

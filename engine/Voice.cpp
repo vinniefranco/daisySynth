@@ -7,18 +7,9 @@ void Voice::Init(float new_sample_rate, float osc_amp) {
   osc1_.Init(new_sample_rate);
 
   v_env.Init(new_sample_rate);
-  v_env.SetAttackRate(.1f);
-  v_env.SetDecayRate(.3f);
-  v_env.SetSustainLevel(.7f);
-  v_env.SetReleaseRate(2.7f);
-  v_env.SetReleaseRate(2.7f);
   v_env.SetKillRate(.03f);
 
   f_env.Init(new_sample_rate);
-  f_env.SetAttackRate(.1f);
-  f_env.SetDecayRate(.3f);
-  f_env.SetSustainLevel(.7f);
-  f_env.SetReleaseRate(2.7f);
   f_env.SetKillRate(.03f);
 }
 
@@ -51,8 +42,8 @@ float Voice::Process() {
   float v_env_value = v_env.Process();
   float f_env_value = f_env.Process();
 
-  flt.SetCutoffMod(f_env_value * (f_env_amount + note.key_follow) +
-                   (lfo_value * f_lfo_amount));
+  flt.SetCutoffMod(f_env_value * (f_env_amount + note.key_follow)); // +
+                   // (lfo_value * f_lfo_amount));
 
   float output = flt.Process(osc_sum) * v_env_value * note.velocity;
 
