@@ -63,7 +63,7 @@ void VoiceManager::Process(float *left, float *right) {
     Voice &voice = voices_[i];
     if (voice.IsPlayable()) {
       active_voices++;
-      // voice.SetLFOValue(lfo_value);
+      voice.SetLFOValue(lfo_value);
       output += voice.Process();
     }
   }
