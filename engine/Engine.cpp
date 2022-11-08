@@ -31,6 +31,7 @@ void Engine::Init(daisy::DaisySeed *seed, daisy::CpuLoadMeter *meter,
   voice_manager.Init(sample_rate);
   voice_manager.SetLFOFrequency(0.03f);
 
+
   daisy::System::Delay(1000);
 }
 
@@ -164,7 +165,7 @@ void Engine::ListenToMidi() {
 
       case 93: {
         voice_manager.SetVolumeRelease(
-            daisysp::fmap((float)cc.value / 127.f, 0.1f, 6.f));
+            daisysp::fmap((float)cc.value / 127.f, 0.1f, 10.f));
         break;
       }
 
@@ -188,7 +189,7 @@ void Engine::ListenToMidi() {
 
       case 103: {
         voice_manager.SetFilterRelease(
-            daisysp::fmap((float)cc.value / 127.f, 0.1f, 6.f));
+            daisysp::fmap((float)cc.value / 127.f, 0.1f, 10.f));
         break;
       }
       }

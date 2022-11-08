@@ -35,19 +35,28 @@ float Voice::Process() {
     }
   }
 
-  float osc0_out = osc0_.Process();
-  float osc1_out = osc1_.Process();
-  float osc_sum = ((1 - m_osc_mix) * osc0_out) + (m_osc_mix * osc1_out);
+  const float osc0_out = osc0_.Process();
+  const float osc1_out = osc1_.Process();
+  const float osc_sum = (1 - m_osc_mix) * osc0_out + (m_osc_mix * osc1_out);
 
   float v_env_value = v_env.Process();
   float f_env_value = f_env.Process();
 
-  flt.SetCutoffMod(f_env_value * (f_env_amount + note.key_follow)); // +
-                   // (lfo_value * f_lfo_amount));
+  flt.SetCutoffMod(f_env_value * (f_env_amount + note.key_follow) +
+                   (lfo_value * f_lfo_amount));
 
   float output = flt.Process(osc_sum) * v_env_value * note.velocity;
 
-  return output;
+  const float ax = fabs(output);
+	const float x2 = output * output;
+  const float z = output * (
+    0.773062670268356f + ax +
+    ( 0.757118539838817f + 0.0139332362248817f * x2 * x2 ) *
+		x2 * ax );
+
+	return( z / ( 1.02718982441289f + fabs( z )));
+  // return tanh(output);
+  // return output;
 }
 
 void Voice::ResetPhasor() {
@@ -109,6 +118,6 @@ void Voice::SetPitchBend(float amount) {
 }
 
 void Voice::SetWavetable(WaveSlot *wt_slots) {
-  osc0_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
-  osc1_.SetWavetable(wt_slots[0].wt, wt_slots[0].wt_slots);
+  osc0_.SetWavetable(wt_slots[1].wt, wt_slots[1].wt_slots);
+  osc1_.SetWavetable(wt_slots[1].wt, wt_slots[1].wt_slots);
 }

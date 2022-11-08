@@ -7,7 +7,7 @@ void VoiceManager::Init(float sample_rate) {
     voice.Init(sample_rate, 0.5f);
   }
   lfo_.Init(sample_rate);
-  lfo_.SetWaveform(lfo_.WAVE_SIN);
+  lfo_.SetWaveform(lfo_.WAVE_TRI);
   lfo_.SetAmp(0.0f);
 
   for (uint8_t x = 0; x < 127; x++) {
@@ -69,7 +69,8 @@ void VoiceManager::Process(float *left, float *right) {
   }
 
   // Saturate the signal a bit
-  output = tanh(volume_ * output);
+  // output = tanh(volume_ * output);
+  output = volume_ * output;
 
   if (buffer_throttle % 3 == 0) {
     last_sample = output;

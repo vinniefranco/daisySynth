@@ -9,7 +9,7 @@
 
 class VoiceManager {
 private:
-  static const int number_of_voices_ = 12;
+  static const int number_of_voices_ = 10;
 
   uint8_t buffer_throttle = 0;
   float midi_[127];
