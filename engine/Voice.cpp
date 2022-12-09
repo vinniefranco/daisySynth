@@ -49,14 +49,13 @@ float Voice::Process() {
 
   const float ax = fabs(output);
 	const float x2 = output * output;
+  // fast tan for a bit of saturation
   const float z = output * (
     0.773062670268356f + ax +
     ( 0.757118539838817f + 0.0139332362248817f * x2 * x2 ) *
 		x2 * ax );
 
 	return( z / ( 1.02718982441289f + fabs( z )));
-  // return tanh(output);
-  // return output;
 }
 
 void Voice::ResetPhasor() {
