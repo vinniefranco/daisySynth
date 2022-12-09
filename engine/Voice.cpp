@@ -48,7 +48,7 @@ float Voice::Process() {
   float output = flt.Process(osc_sum) * v_env_value * note.velocity;
 
   const float ax = fabs(output);
-	const float x2 = output * output;
+  const float x2 = output * output;
   // fast tan for a bit of saturation
   const float z = output * (
     0.773062670268356f + ax +
