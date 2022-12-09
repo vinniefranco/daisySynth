@@ -68,8 +68,6 @@ void VoiceManager::Process(float *left, float *right) {
     }
   }
 
-  // Saturate the signal a bit
-  // output = tanh(volume_ * output);
   output = volume_ * output;
 
   if (buffer_throttle % 3 == 0) {
